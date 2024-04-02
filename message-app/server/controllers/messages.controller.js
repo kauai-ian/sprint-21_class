@@ -2,7 +2,9 @@ const Message = require("../models/Message");
 
 exports.list = async (req, res) => {
   try {
-    const messages = await Message.find().populate("author").populate("likes");
+    const messages = await Message.find()
+      .populate("author")
+      .populate("likes");
     return res.json({ data: messages });
   } catch (error) {
     return res.status(500).json({ error: error.message });

@@ -24,7 +24,29 @@ exports.get = async (req, res) => {
 // TODO validate the post body & escape the user input
 exports.create = async (req, res) => {
   try {
-    const user = await User.create(req.body);
+    if (!req.body) {
+      return res.status(400).json({ error: "Request body is required" });
+    }
+
+    const { email, name, nickname, picture, sub } = req.body;
+    if (!email || !name || !nickname || !picture || !sub) {
+      return res.status(400).json({ error: "Request body is invalid" });
+    }
+
+    // Check if the user exists
+    const existing = await User.findOne({ sub });
+    if (existing) {
+      return res.status(200).json({ message: "User already exists", data: existing });
+    }
+
+    const user = await User.create({
+      email,
+      username: nickname,
+      displayName: name,
+      profileImage: picture,
+      sub,
+    });
+
     return res.status(201).json({ data: user });
   } catch (error) {
     return res.status(500).json({ error: error.message });
