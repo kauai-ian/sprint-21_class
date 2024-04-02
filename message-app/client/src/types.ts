@@ -6,6 +6,8 @@ export type IUser = {
   displayName: string;
   joinedDate: string;
   profileImage: string;
+  bio: string;
+  headerImage: string;
   __v: number;
 };
 

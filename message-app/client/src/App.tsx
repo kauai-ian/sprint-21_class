@@ -4,6 +4,7 @@ import AuthRoute from "./components/AuthRoute";
 import Layout from "./components/Layout";
 import Callback from "./pages/Callback";
 import Home from "./pages/Home";
+import Feed from "./pages/Feed";
 
 function App() {
   return (
@@ -17,6 +18,12 @@ function App() {
             <AuthRoute>
               <Profile />
             </AuthRoute>
+          }
+        />
+        <Route
+          path="/feed"
+          element={
+            <Feed />
           }
         />
       </Routes>

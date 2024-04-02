@@ -18,43 +18,8 @@ export default function Navbar() {
         borderStyle={"solid"}
         borderColor={useColorModeValue("gray.200", "gray.900")}
         align={"center"}
-        justify={"space-between"}
+        justify={"flex-end"}
       >
-        <Flex flex={{ base: 1 }} justify={{ base: "center", md: "start" }}>
-          {isAuthenticated && (
-            <>
-              <Box
-                as="a"
-                p={2}
-                href={`/profile`}
-                fontSize={"sm"}
-                fontWeight={500}
-                color={linkColor}
-                _hover={{
-                  textDecoration: "none",
-                  color: linkColorHover,
-                }}
-              >
-                Profile
-              </Box>
-              <Box
-                as="a"
-                p={2}
-                href={`/users/`}
-                fontSize={"sm"}
-                fontWeight={500}
-                color={linkColor}
-                _hover={{
-                  textDecoration: "none",
-                  color: linkColorHover,
-                }}
-              >
-                Users
-              </Box>
-            </>
-          )}
-        </Flex>
-
         <Stack
           flex={{ base: 1, md: 0 }}
           justify={"flex-end"}
@@ -65,7 +30,6 @@ export default function Navbar() {
             <Button
               fontSize={"sm"}
               fontWeight={400}
-              variant={"link"}
               onClick={() =>
                 logout({ logoutParams: { returnTo: window.location.origin } })
               }
@@ -76,12 +40,7 @@ export default function Navbar() {
             <Button
               fontSize={"sm"}
               fontWeight={600}
-              color={"white"}
-              bg={"pink.400"}
               onClick={() => loginWithRedirect()}
-              _hover={{
-                bg: "pink.300",
-              }}
             >
               Sign Up
             </Button>
