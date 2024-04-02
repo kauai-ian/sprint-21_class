@@ -1,0 +1,27 @@
+{
+  "React Component": {
+    "prefix": "story",
+    "body": [
+      "import { Meta, StoryObj } from '@storybook/react';",
+      "",
+      "import ${TM_DIRECTORY/^.+\\/(.*)$/$1/}, { Props } from '.';",
+      "",
+      "const meta: Meta<typeof ${TM_DIRECTORY/^.+\\/(.*)$/$1/}> = {",
+      "  argTypes: {},",
+      "  component: ${TM_DIRECTORY/^.+\\/(.*)$/$1/},",
+      "  title: 'Design Systems/${TM_DIRECTORY/^.+\\/src\\/(.*)$/$1/}',",
+      "};",
+      "",
+      "export default meta;",
+      "type Story = StoryObj<typeof ${TM_DIRECTORY/^.+\\/(.*)$/$1/}>;",
+      "",
+      "const args: Props = {$1};",
+      "",
+      "export const Primary: Story = {",
+      "  args,",
+      "};",
+      ""
+    ],
+    "description": "Creates a storybook component"
+  }
+}
