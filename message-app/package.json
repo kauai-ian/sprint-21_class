@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "start": "concurrently \"yarn server\" \"yarn client\"",
+    "server": "yarn --cwd ./server/ dev",
+    "client": "yarn --cwd ./client/ dev"
+  },
   "dependencies": {},
   "devDependencies": {
     "concurrently": "^8.2.2"
