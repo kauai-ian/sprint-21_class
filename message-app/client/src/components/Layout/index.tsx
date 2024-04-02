@@ -1,7 +1,6 @@
 import { GridItem, Grid } from "@chakra-ui/react";
 import Navbar from "../Navbar";
 import { FC } from "react";
-import { useLocation } from "react-router-dom";
 import Sidebar from "../Sidebar";
 
 type Props = {
@@ -9,9 +8,7 @@ type Props = {
 };
 
 const Layout: FC<Props> = ({ children }) => {
-  const location = useLocation();
   return (
-
     <Grid
       templateAreas={`"nav nav" "sidebar main"`}
       gridTemplateRows={'auto 1fr'}
@@ -19,7 +16,7 @@ const Layout: FC<Props> = ({ children }) => {
       gap='1'
     >
     <GridItem area={'nav'}>
-      {location.pathname === "/callback" ? null : <Navbar />}
+      <Navbar />
     </GridItem>
     <GridItem area={'sidebar'}>
       <Sidebar />

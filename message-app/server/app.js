@@ -5,19 +5,6 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
 
-const messagesRouter = require('./routes/messages');
-const usersRouter = require('./routes/users');
-
-// Connect to db
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then((db) => {
-    console.log("Connected to MongoDB");
-    return db;
-  })
-  .catch((error) => {
-    console.error("Error connecting to MongoDB:", error);
-  });
 
 const app = express();
 
@@ -25,9 +12,6 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-
-app.use('/messages', messagesRouter);
-app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

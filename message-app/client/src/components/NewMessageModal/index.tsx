@@ -2,11 +2,8 @@ import {
   Modal,
   ModalOverlay,
   ModalContent,
-  ModalHeader,
   ModalCloseButton,
   ModalBody,
-  ModalFooter,
-  Button,
 } from "@chakra-ui/react";
 import { FC, useRef } from "react";
 import MessageForm from "../MessageForm";

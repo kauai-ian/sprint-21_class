@@ -1,4 +1,3 @@
-import { useAuth0 } from "@auth0/auth0-react";
 import { Button, Container, Stack, Box, Heading, Text } from "@chakra-ui/react";
 import { FC } from "react";
 
@@ -52,9 +51,8 @@ export const Home: FC<Props> = ({ handleLogin }) => {
 };
 
 const HomePage = () => {
-  const { loginWithRedirect } = useAuth0();
 
-  return <Home handleLogin={() => loginWithRedirect()} />;
+  return <Home handleLogin={() => {}} />;
 };
 
 export default HomePage;

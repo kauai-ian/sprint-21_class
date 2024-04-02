@@ -3,8 +3,6 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 export default function Navbar() {
   const { isLoading, isAuthenticated, logout, loginWithRedirect } = useAuth0();
-  const linkColor = useColorModeValue("gray.600", "gray.200");
-  const linkColorHover = useColorModeValue("gray.800", "white");
 
   return (
     <Box>
