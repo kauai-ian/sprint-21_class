@@ -5,6 +5,7 @@ import { mockMessage } from "../../mocks/messages";
 import { IMessage } from "../../types";
 import { FC } from "react";
 import dayjs from "dayjs";
+import { useAuth0 } from "@auth0/auth0-react";
 
 export type Props = {
   displayName: string;
@@ -23,6 +24,8 @@ export const Profile: FC<Props> = ({
   profileImage,
   messages,
 }) => {
+  const { user } = useAuth0();
+  console.log("USER ", user);
   const date = dayjs(joinedDate).format("MMMM YYYY");
   return (
     <Box maxW="600px" m="auto">
