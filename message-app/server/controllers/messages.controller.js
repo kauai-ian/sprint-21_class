@@ -1,5 +1,6 @@
 const Message = require("../models/Message");
 const User = require("../models/User");
+
 const response = require("../helpers/response");
 
 exports.createMessage = async (req, res) => {
@@ -129,7 +130,8 @@ exports.deleteMessage = async (req, res) => {
 
 exports.likeMessage = async (req, res) => {
   try {
-    const { _id, userId } = req.params;
+    const { _id } = req.params;
+    const { userId } = req.body;
     if (!_id || !userId) {
       return response({
         res,
@@ -161,6 +163,58 @@ exports.likeMessage = async (req, res) => {
       status: 200,
       message: successMessage,
       data: message,
+    });
+  } catch (error) {
+    console.error(error);
+    return response({
+      res,
+      status: 500,
+      message: "Server error",
+    });
+  }
+};
+
+exports.updateMessage = async (req, res) => {
+  try {
+    const { _id } = req.params;
+    const { userId, body } = req.body;
+    if (!_id || !userId || !body) {
+      return response({
+        res,
+        status: 400,
+        message: "Missing required fields",
+      });
+    }
+
+    const message = await Message.findById(_id);
+    if (!message) {
+      return response({
+        res,
+        status: 404,
+        message: "Message not found",
+      });
+    }
+    console.log("message.author", message.author);
+    if (message.author.toString() !== userId) {
+      return response({
+        res,
+        status: 403,
+        message: "Unauthorized",
+      });
+    }
+
+    const newMessage = await Message.findByIdAndUpdate(
+      _id,
+      { body },
+      { new: true }
+    );
+    await newMessage.save();
+
+    return response({
+      res,
+      status: 200,
+      message: "Message updated",
+      data: newMessage,
     });
   } catch (error) {
     console.error(error);
