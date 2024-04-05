@@ -67,7 +67,7 @@ exports.getUser = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ sub });
+    const user = await User.findOne({ sub }).populate("followers").populate("following");
     if (!user) {
       return response({
         res,
@@ -149,3 +149,126 @@ exports.listUsers = async (req, res) => {
     });
   }
 }
+
+exports.followUser = async (req, res) => {
+  try {
+    const { sub } = req.params;
+    if (!sub || !req.body) {
+      return response({
+        res,
+        status: 400,
+        message: "Missing required fields",
+      });
+    }
+
+    const { currentUserId } = req.body;
+    if (!currentUserId) {
+      return response({
+        res,
+        status: 400,
+        message: "Missing required fields",
+      });
+    }
+
+    const targetUser = await User.findOne({ sub });
+    const currentUser = await User.findById(currentUserId);
+
+    if (!targetUser || !currentUser) {
+      return response({
+        res,
+        status: 404,
+        message: "Current User or target user not found",
+      });
+    }
+
+    if (currentUser.following.includes(targetUser._id) || targetUser.followers.includes(currentUserId)) {
+      return response({
+        res,
+        status: 400,
+        message: "User already followed",
+      });
+    }
+
+    targetUser.followers.push(currentUserId);
+    currentUser.following.push(targetUser._id);
+    await targetUser.save();
+    await currentUser.save();
+    // TODO add notification
+
+    return response({
+      res,
+      status: 200,
+      message: "User followed",
+    });
+  } catch (error) {
+    console.error(error);
+    return response({
+      res,
+      status: 500,
+      message: "Server error",
+    });
+  }
+}
+
+exports.unFollowUser = async (req, res) => {
+  try {
+    const { sub } = req.params;
+    if (!sub || !req.body) {
+      return response({
+        res,
+        status: 400,
+        message: "Missing required fields",
+      });
+    }
+
+    const { currentUserId } = req.body;
+    if (!currentUserId) {
+      return response({
+        res,
+        status: 400,
+        message: "Missing required fields",
+      });
+    }
+
+    const targetUser = await User.findOne({ sub });
+    const currentUser = await User.findById(currentUserId);
+
+    if (!targetUser || !currentUser) {
+      return response({
+        res,
+        status: 404,
+        message: "Current User or target user not found",
+      });
+    }
+
+    if (
+      !currentUser.following.includes(targetUser._id) ||
+      !targetUser.followers.includes(currentUserId)
+    ) {
+      return response({
+        res,
+        status: 400,
+        message: "User is not following",
+      });
+    }
+
+    targetUser.followers.pull(currentUserId);
+    currentUser.following.pull(targetUser._id);
+    await targetUser.save();
+    await currentUser.save();
+    // TODO add notification
+
+    return response({
+      res,
+      status: 200,
+      message: "User unfollowed",
+    });
+  } catch (error) {
+    console.error(error);
+    return response({
+      res,
+      status: 500,
+      message: "Server error",
+    });
+  }
+};
