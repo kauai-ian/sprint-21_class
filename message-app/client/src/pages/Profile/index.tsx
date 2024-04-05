@@ -1,11 +1,12 @@
 import { Box, Spinner, Button, Flex, Image, Text } from "@chakra-ui/react";
 import MessageCard from "../../components/MessageCard";
 import { IMessage, IUser } from "../../types";
-import { FC, useState, useEffect } from "react";
+import { FC, useState, useEffect, useMemo } from "react";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
 import useCurrentUser from "../../hooks/useCurrentUser";
 import * as api from "../../api/users";
+import useMessages from "../../hooks/useMessages";
 
 export type Props = {
   displayName: string;
@@ -82,7 +83,8 @@ export const Profile: FC<Props> = ({
 
 const ProfilePage = () => {
   const { sub } = useParams();
-  const { users, isLoadingUser, addUser, currentUser } = useCurrentUser();
+  const { addUser, currentUser, users } = useCurrentUser();
+  const { messages } = useMessages();
   // Check if we have already fetched the user
   const [user, setUser] = useState<IUser | undefined>(() => {
     if (currentUser && currentUser.sub === sub) {
@@ -92,10 +94,17 @@ const ProfilePage = () => {
   });
 
   const isProfileOwner = currentUser?.sub === sub;
+  const currentUserMessages = useMemo(() => {
+    if (!user || !messages) {
+      return [];
+    }
+
+    return messages.filter((message) => message.author.sub === sub);
+  }, [user, messages, sub]);
 
   // Fetch the user if we haven't already
   const fetchUser = async () => {
-    if (user || isLoadingUser || !sub) {
+    if (user || !sub) {
       return;
     }
 
@@ -114,19 +123,23 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    if (isLoadingUser || !sub || (user && user.sub === sub)) {
+    if (!sub || (user && user.sub === sub)) {
       return;
     }
     fetchUser();
-  }, [isLoadingUser, sub, user]);
+  }, [sub, user]);
 
-  console.log("user", user);
-
-  if (isLoadingUser || !user) {
+  if (!user) {
     return <Spinner />;
   }
 
-  return <Profile {...user} messages={[]} isProfileOwner={isProfileOwner} />;
+  return (
+    <Profile
+      {...user}
+      messages={currentUserMessages}
+      isProfileOwner={isProfileOwner}
+    />
+  );
 };
 
 export default ProfilePage;
