@@ -5,6 +5,7 @@ import "./index.css";
 import { Auth0Provider } from "@auth0/auth0-react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { BrowserRouter } from "react-router-dom";
+import MessagesProvider from "./context/messagesContext.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -15,11 +16,13 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         redirect_uri: `${window.location.origin}/callback`,
       }}
     >
-      <ChakraProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </ChakraProvider>
+      <MessagesProvider>
+        <ChakraProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </ChakraProvider>
+      </MessagesProvider>
     </Auth0Provider>
   </React.StrictMode>
 );

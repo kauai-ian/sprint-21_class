@@ -28,6 +28,7 @@ MessageSchema.virtual("author", {
   ref: "User",
   localField: "authorId",
   foreignField: "sub",
+  justOne: true,
 });
 
 module.exports = mongoose.model("Message", MessageSchema);

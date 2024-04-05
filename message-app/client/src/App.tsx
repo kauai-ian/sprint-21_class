@@ -5,8 +5,11 @@ import Layout from "./components/Layout";
 import Callback from "./pages/Callback";
 import Home from "./pages/Home";
 import Feed from "./pages/Feed";
+import useSocket from "./hooks/useSocket";
 
 function App() {
+  useSocket();
+
   return (
     <Layout>
       <Routes>
@@ -20,12 +23,7 @@ function App() {
             </AuthRoute>
           }
         />
-        <Route
-          path="/feed"
-          element={
-            <Feed />
-          }
-        />
+        <Route path="/feed" element={<Feed />} />
       </Routes>
     </Layout>
   );

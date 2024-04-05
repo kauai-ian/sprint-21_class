@@ -25,9 +25,11 @@ export type Props = {
 const MessageForm: FC<Props> = ({ onSubmit, profileImage }) => {
   const [body, setBody] = useState("");
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     // TODO: Implement the submit logic
     onSubmit(body);
+    setBody("");
   };
 
   return (
