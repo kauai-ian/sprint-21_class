@@ -9,6 +9,7 @@ export type MessagesContextType = {
   updateMessage: (message: IMessage) => void;
   deleteMessage: (_id: string) => void;
   updateMessageLikes: (_id: string, likes: IUser[]) => void;
+  setIsLoading: (loading: boolean) => void;
 };
 
 const initState: MessagesContextType = {
@@ -18,6 +19,7 @@ const initState: MessagesContextType = {
   updateMessage: () => {},
   deleteMessage: () => {},
   updateMessageLikes: () => {},
+  setIsLoading: () => {},
 };
 
 export const MessagesContext = createContext<MessagesContextType>(initState);
@@ -79,6 +81,7 @@ const MessagesProvider: FC<{ children: ReactNode }> = ({ children }) => {
         updateMessage,
         deleteMessage,
         updateMessageLikes,
+        setIsLoading,
       }}
     >
       {children}

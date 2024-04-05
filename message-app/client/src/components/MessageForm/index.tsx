@@ -8,31 +8,22 @@ import {
 } from "@chakra-ui/react";
 import { FC, useState } from "react";
 import useCurrentUser from "../../hooks/useCurrentUser";
-import useMessages from "../../hooks/useMessages";
-import * as api from "../../api/messages";
 
-const MessageForm: FC = () => {
-  const [loading, setLoading] = useState(false);
+export type Props = {
+  isLoading: boolean;
+  onSubmit: (body: string) => void;
+};
+
+const MessageForm: FC<Props> = ({ isLoading, onSubmit }) => {
   const { currentUser } = useCurrentUser();
-  const { addMessage } = useMessages();
   const [body, setBody] = useState("");
 
   const handleSubmit = async () => {
-    try {
-      if (!body || !currentUser) {
-        return;
-      }
-      setLoading(true);
-      const { data } = await api.createMessage(body, currentUser._id);
-      if (!data) {
-        throw new Error("Failed to create message");
-      }
-      addMessage(data);
-      setBody("");
-    } catch (error) {
-      console.error("Failed to create message", error);
+    if (!body || !currentUser) {
+      return;
     }
-    setLoading(false);
+    await onSubmit(body);
+    setBody("");
   };
 
   return (
@@ -59,7 +50,7 @@ const MessageForm: FC = () => {
           />
         </FormControl>
         <Flex justify="flex-end">
-          <Button isLoading={loading} onClick={handleSubmit}>
+          <Button isLoading={isLoading} onClick={handleSubmit}>
             Post
           </Button>
         </Flex>

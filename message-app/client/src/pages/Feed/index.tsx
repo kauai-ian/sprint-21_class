@@ -7,13 +7,13 @@ import { useAuth0 } from "@auth0/auth0-react";
 
 export const Feed: FC = () => {
   const { isAuthenticated } = useAuth0();
-  const { messages } = useMessages();
+  const { messages, createMessage, isLoading } = useMessages();
 
   return (
     <Box>
       {isAuthenticated && (
         <Box mb="16px">
-          <MessageForm />
+          <MessageForm onSubmit={createMessage} isLoading={isLoading} />
         </Box>
       )}
       <Flex flexDirection="column" gap={2}>
