@@ -1,18 +1,11 @@
-import {
-  Box,
-  Spinner,
-  Button,
-  Flex,
-  Image,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Spinner, Button, Flex, Image, Text } from "@chakra-ui/react";
 import MessageCard from "../../components/MessageCard";
-import { IMessage } from "../../types";
-import { FC } from "react";
+import { IMessage, IUser } from "../../types";
+import { FC, useState, useEffect } from "react";
 import dayjs from "dayjs";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useParams } from "react-router-dom";
 import useCurrentUser from "../../hooks/useCurrentUser";
+import * as api from "../../api/users";
 
 export type Props = {
   displayName: string;
@@ -31,8 +24,6 @@ export const Profile: FC<Props> = ({
   profileImage,
   messages,
 }) => {
-  const { user } = useAuth0();
-  // console.log("USER ", user);
   const date = dayjs(joinedDate).format("MMMM YYYY");
   return (
     <Box maxW="600px" m="auto">
@@ -88,24 +79,45 @@ export const Profile: FC<Props> = ({
 };
 
 const ProfilePage = () => {
-  // TODO get user data from API
-  // const { sub } = useParams()
-  const { currentUser, isLoadingUser } = useCurrentUser();
-  console.log("CURRENT USER IN PROFILE ", currentUser);
-  if (isLoadingUser || !currentUser) {
+  const { sub } = useParams();
+  const { users, isLoadingUser, addUser } = useCurrentUser();
+  // Check if we have already fetched the user
+  const [user, setUser] = useState<IUser | undefined>(() => {
+    return users.find((user) => user.sub === sub);
+  });
+
+  // Fetch the user if we haven't already
+  const fetchUser = async () => {
+    if (user || isLoadingUser || !sub) {
+      return;
+    }
+
+    try {
+      const { data } = await api.getUser(sub);
+
+      if (!data) {
+        throw new Error("Failed to get user");
+      }
+      setUser(data);
+      // Add this newly fetched user to the list of users we've already fetched
+      addUser(data);
+    } catch (error) {
+      console.error("Failed to fetch user", error);
+    }
+  };
+
+  useEffect(() => {
+    if (isLoadingUser || !sub || (user && user.sub === sub)) {
+      return;
+    }
+    fetchUser();
+  }, [isLoadingUser, sub, user]);
+
+  if (isLoadingUser || !user) {
     return <Spinner />;
   }
 
-  return (
-    <Profile
-      displayName={currentUser.displayName}
-      username={currentUser.username}
-      bio="Hello, World!"
-      joinedDate={currentUser.joinedDate}
-      profileImage={currentUser.profileImage}
-      messages={[]}
-    />
-  );
+  return <Profile {...user} messages={[]} />;
 };
 
 export default ProfilePage;
