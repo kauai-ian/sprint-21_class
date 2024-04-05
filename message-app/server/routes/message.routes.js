@@ -1,11 +1,12 @@
 const messages = require("../controllers/messages.controller.js");
 const router = require("express").Router();
+const { checkJwt } = require("../middleware/auth");
 
-router.post("/", messages.createMessage);
+router.post("/", checkJwt, messages.createMessage);
 router.get("/", messages.listMessages);
-router.get("/:_id", messages.getMessage);
-router.put("/:_id", messages.updateMessage);
-router.put("/:_id/like", messages.likeMessage);
-router.delete("/:_id", messages.deleteMessage);
+router.get("/:_id", checkJwt, messages.getMessage);
+router.put("/:_id", checkJwt, messages.updateMessage);
+router.put("/:_id/like", checkJwt, messages.likeMessage);
+router.delete("/:_id", checkJwt, messages.deleteMessage);
 
 module.exports = router;
