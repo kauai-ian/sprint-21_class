@@ -14,6 +14,7 @@ export type Props = {
   joinedDate: string;
   profileImage: string;
   messages: IMessage[];
+  isProfileOwner: boolean;
 };
 
 export const Profile: FC<Props> = ({
@@ -23,6 +24,7 @@ export const Profile: FC<Props> = ({
   joinedDate,
   profileImage,
   messages,
+  isProfileOwner,
 }) => {
   const date = dayjs(joinedDate).format("MMMM YYYY");
   return (
@@ -41,7 +43,7 @@ export const Profile: FC<Props> = ({
             </Box>
           </Box>
           {/* TODO Swap for "EDIT" */}
-          <Button mt="5px">Follow</Button>
+          <Button mt="5px">{isProfileOwner ? "Edit" : "Follow"}</Button>
         </Flex>
         <Box>
           <Text fontSize="2xl" fontWeight="extrabold">
@@ -80,11 +82,16 @@ export const Profile: FC<Props> = ({
 
 const ProfilePage = () => {
   const { sub } = useParams();
-  const { users, isLoadingUser, addUser } = useCurrentUser();
+  const { users, isLoadingUser, addUser, currentUser } = useCurrentUser();
   // Check if we have already fetched the user
   const [user, setUser] = useState<IUser | undefined>(() => {
+    if (currentUser && currentUser.sub === sub) {
+      return currentUser;
+    }
     return users.find((user) => user.sub === sub);
   });
+
+  const isProfileOwner = currentUser?.sub === sub;
 
   // Fetch the user if we haven't already
   const fetchUser = async () => {
@@ -113,11 +120,13 @@ const ProfilePage = () => {
     fetchUser();
   }, [isLoadingUser, sub, user]);
 
+  console.log("user", user);
+
   if (isLoadingUser || !user) {
     return <Spinner />;
   }
 
-  return <Profile {...user} messages={[]} />;
+  return <Profile {...user} messages={[]} isProfileOwner={isProfileOwner} />;
 };
 
 export default ProfilePage;
