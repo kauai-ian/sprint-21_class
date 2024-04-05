@@ -14,6 +14,8 @@ const Layout: FC<Props> = ({ children }) => {
       gridTemplateRows={'auto 1fr'}
       gridTemplateColumns={'150px 1fr'}
       gap='1'
+      overflow="hidden"
+      height="100vh"
     >
     <GridItem area={'nav'}>
       <Navbar />
@@ -21,7 +23,7 @@ const Layout: FC<Props> = ({ children }) => {
     <GridItem area={'sidebar'}>
       <Sidebar />
     </GridItem>
-    <GridItem area={'main'} overflow="auto">
+    <GridItem area={'main'} overflow="auto" pb="200px">
       { children }
     </GridItem>
   </Grid>

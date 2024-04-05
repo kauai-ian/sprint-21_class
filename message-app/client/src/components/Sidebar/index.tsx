@@ -23,7 +23,6 @@ interface NavItemProps extends FlexProps {
   href: string;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { href: "/", name: "Home", icon: FiHome },
   { href: "/feed", name: "Trending", icon: FiTrendingUp },
   { href: "/feed", name: "Explore", icon: FiCompass },
 ];
@@ -63,19 +62,29 @@ const NavItem = ({ icon, children, href }: NavItemProps) => {
 };
 
 const Sidebar = () => {
-  const { isLoading, user } = useAuth0();
+  const { isAuthenticated, isLoading, user } = useAuth0();
+
   return (
     <Box minH="100vh" bg={useColorModeValue("gray.100", "gray.900")} pl={4}>
-      {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon} href={link.href}>
-          {link.name}
-        </NavItem>
-      ))}
-      {!isLoading && user?.sub && (
-        <NavItem icon={FiUser} href={`/profile/${user.sub}`}>
-          Profile
-        </NavItem>
-      )}
+      {!isLoading ? (
+        <Box>
+          {!isAuthenticated && (
+            <NavItem icon={FiHome} href="/">
+              Home
+            </NavItem>
+          )}
+          {LinkItems.map((link) => (
+            <NavItem key={link.name} icon={link.icon} href={link.href}>
+              {link.name}
+            </NavItem>
+          ))}
+          {!isLoading && user?.sub && (
+            <NavItem icon={FiUser} href={`/profile/${user.sub}`}>
+              Profile
+            </NavItem>
+          )}
+        </Box>
+      ) : null}
     </Box>
   );
 };
