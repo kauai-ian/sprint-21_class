@@ -11,7 +11,7 @@ function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/profile" element={
+        <Route path="/profile/:sub" element={
           <AuthRoute>
             <Profile />
           </AuthRoute>

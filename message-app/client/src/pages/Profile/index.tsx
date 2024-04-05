@@ -6,6 +6,8 @@ import { IMessage } from "../../types";
 import { FC } from "react";
 import dayjs from "dayjs";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useParams } from "react-router-dom";
+import useCurrentUser from "../../hooks/useCurrentUser";
 
 export type Props = {
   displayName: string;
@@ -25,7 +27,7 @@ export const Profile: FC<Props> = ({
   messages,
 }) => {
   const { user } = useAuth0();
-  console.log("USER ", user);
+  // console.log("USER ", user);
   const date = dayjs(joinedDate).format("MMMM YYYY");
   return (
     <Box maxW="600px" m="auto">
@@ -82,6 +84,9 @@ export const Profile: FC<Props> = ({
 
 const ProfilePage = () => {
   // TODO get user data from API
+  // const { sub } = useParams()
+  const { currentUser } = useCurrentUser();
+  console.log("SUB ", currentUser);
 
   return (
     <Profile
