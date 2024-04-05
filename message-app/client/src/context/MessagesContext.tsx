@@ -1,5 +1,5 @@
 import { useState, FC, createContext, ReactNode, useEffect } from "react";
-import { IMessage } from "../types";
+import { IMessage, IUser } from "../types";
 import * as api from "../api/messages";
 
 export type MessagesContextType = {
@@ -8,6 +8,7 @@ export type MessagesContextType = {
   addMessage: (message: IMessage) => void;
   updateMessage: (message: IMessage) => void;
   deleteMessage: (_id: string) => void;
+  updateMessageLikes: (_id: string, likes: IUser[]) => void;
 };
 
 const initState: MessagesContextType = {
@@ -16,6 +17,7 @@ const initState: MessagesContextType = {
   addMessage: () => {},
   updateMessage: () => {},
   deleteMessage: () => {},
+  updateMessageLikes: () => {},
 };
 
 export const MessagesContext = createContext<MessagesContextType>(initState);
@@ -25,12 +27,23 @@ const MessagesProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   const addMessage = (message: IMessage) => {
-    setMessages((prev) => [...prev, message]);
+    setMessages((prev) => [message, ...prev]);
   };
 
   const updateMessage = (message: IMessage) => {
     setMessages((prev) =>
       prev.map((m) => (m._id === message._id ? message : m))
+    );
+  };
+
+  const updateMessageLikes = (_id: string, likes: IUser[]) => {
+    setMessages((prev) =>
+      prev.map((m) => {
+        if (m._id === _id) {
+          return { ...m, likes };
+        }
+        return m;
+      })
     );
   };
 
@@ -59,7 +72,14 @@ const MessagesProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   return (
     <MessagesContext.Provider
-      value={{ messages, isLoading, addMessage, updateMessage, deleteMessage }}
+      value={{
+        messages,
+        isLoading,
+        addMessage,
+        updateMessage,
+        deleteMessage,
+        updateMessageLikes,
+      }}
     >
       {children}
     </MessagesContext.Provider>

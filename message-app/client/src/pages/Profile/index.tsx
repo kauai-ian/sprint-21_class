@@ -67,12 +67,14 @@ export const Profile: FC<Props> = ({
           {messages.map((message) => (
             <MessageCard
               key={message._id}
+              _id={message._id}
               body={message.body}
               createdDate={message.createdDate}
               profileImage={message.author.profileImage}
               displayName={message.author.displayName}
               username={message.author.username}
               likes={message.likes}
+              authorSub={message.author.sub}
             />
           ))}
         </Flex>

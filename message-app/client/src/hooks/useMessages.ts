@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { MessagesContext } from "../context/MessagesContext";
 
 const useMessages = () => {
-  const { messages, isLoading, addMessage, updateMessage, deleteMessage } =
+  const { messages, isLoading, addMessage, updateMessage, updateMessageLikes, deleteMessage } =
     useContext(MessagesContext);
   return {
     messages,
@@ -10,6 +10,7 @@ const useMessages = () => {
     addMessage,
     updateMessage,
     deleteMessage,
+    updateMessageLikes,
   };
 };
 

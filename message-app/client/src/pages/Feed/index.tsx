@@ -21,14 +21,15 @@ export const Feed: FC = () => {
           ? null
           : messages.map((message) => (
               <MessageCard
-                key={message._id}
+                key={`${message._id}_${message.createdDate}`}
                 body={message.body}
-                userId={message.author.sub}
+                authorSub={message.author.sub}
                 createdDate={message.createdDate}
                 profileImage={message.author.profileImage}
                 displayName={message.author.displayName}
                 username={message.author.username}
                 likes={message.likes}
+                _id={message._id}
               />
             ))}
       </Flex>

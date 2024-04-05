@@ -23,16 +23,19 @@ exports.createMessage = async (req, res) => {
       throw new Error("User does not exist");
     }
 
-    const newMessage = (await new Message({ body, author: _id }).save())
-      .populate("author")
-      .populate("likes");
+    const newMessage = new Message({ body, author: _id });
+    await newMessage.save();
     console.log(newMessage);
-    // (await newMessage.save()).populate("author");
+
     return response({
       res,
       status: 201,
       message: "Message created",
-      data: newMessage,
+      data: {
+        ...newMessage.toObject(),
+        author: user,
+        likes: [],
+      },
     });
   } catch (error) {
     console.error(error);
@@ -46,7 +49,7 @@ exports.createMessage = async (req, res) => {
 
 exports.listMessages = async (req, res) => {
   try {
-    const messages = await Message.find().populate("author").populate("likes");
+    const messages = await Message.find().populate("author").populate("likes").sort({ createdDate: -1 });
     return response({
       res,
       status: 200,
@@ -132,6 +135,10 @@ exports.likeMessage = async (req, res) => {
   try {
     const { _id } = req.params;
     const { userId } = req.body;
+    console.log("LIKE MESSAGE", {
+      _id,
+      userId,
+    });
     if (!_id || !userId) {
       return response({
         res,

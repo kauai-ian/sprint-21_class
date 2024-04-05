@@ -34,6 +34,9 @@ export const deleteMessage = async (_id: string) => {
 export const likeMessage = async (_id: string, userId: string) => {
   const response = await fetch(`${ROOT}/${_id}/like`, {
     method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ userId }),
   });
   return response.json();
