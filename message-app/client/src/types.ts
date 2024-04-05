@@ -10,6 +10,8 @@ export type IUser = {
   bio: string;
   headerImage: string;
   __v: number;
+  followers: IUser[];
+  following: IUser[];
 };
 
 export type IMessage = {

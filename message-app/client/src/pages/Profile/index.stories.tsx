@@ -14,15 +14,13 @@ export default meta;
 type Story = StoryObj<typeof Profile>;
 
 const args: Props = {
-  displayName: mockUser.displayName,
-  username: mockUser.username,
-  bio: "Hello, World!",
-  joinedDate: new Date().toISOString(),
-  profileImage:
-    "https://smartcdn.gprod.postmedia.digital/nationalpost/wp-content/uploads/2016/03/hoff.jpg",
+  isFollowing: false,
+  handleFollow: () => {},
+  handleUnfollow: () => {},
   messages: [mockMessage, mockMessage, mockMessage],
   isProfileOwner: true,
   openEditModal: () => {},
+  ...mockUser,
 };
 
 export const Primary: Story = {

@@ -1,35 +1,67 @@
-const ROOT = 'http://localhost:3000/users';
+const ROOT = "http://localhost:3000/users";
 import { User } from "@auth0/auth0-react";
 
 export const createOrUpdate = async (user: User) => {
   const res = await fetch(ROOT, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
     body: JSON.stringify(user),
   });
   return res.json();
-}
+};
 
 export const getUser = async (sub: string, token: string) => {
   const res = await fetch(`${ROOT}/${sub}`, {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Authorization': `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
   });
   return res.json();
-}
+};
 
 export const updateUser = async (sub: string, user: User, token: string) => {
   const res = await fetch(`${ROOT}/${sub}`, {
-    method: 'PUT',
+    method: "PUT",
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(user),
   });
   return res.json();
-}
+};
+
+export const followUser = async (
+  sub: string,
+  currentUserId: string,
+  token: string
+) => {
+  const res = await fetch(`${ROOT}/${sub}/follow`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ currentUserId }),
+  });
+  return res.json();
+};
+
+export const unfollowUser = async (
+  sub: string,
+  currentUserId: string,
+  token: string
+) => {
+  const res = await fetch(`${ROOT}/${sub}/unfollow`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ currentUserId }),
+  });
+  return res.json();
+};

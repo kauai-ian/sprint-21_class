@@ -199,6 +199,10 @@ exports.followUser = async (req, res) => {
       res,
       status: 200,
       message: "User followed",
+      data: {
+        targetUser,
+        currentUser,
+      }
     });
   } catch (error) {
     console.error(error);
@@ -262,6 +266,10 @@ exports.unFollowUser = async (req, res) => {
       res,
       status: 200,
       message: "User unfollowed",
+      data: {
+        targetUser,
+        currentUser,
+      },
     });
   } catch (error) {
     console.error(error);

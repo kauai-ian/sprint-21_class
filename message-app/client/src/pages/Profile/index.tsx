@@ -16,16 +16,15 @@ import * as api from "../../api/users";
 import useMessages from "../../hooks/useMessages";
 import ProfileForm, { FormData } from "../../components/ProfileForm";
 import Loading from "../../components/Loading";
+import UsersModal from "../../components/UsersModal";
 
-export type Props = {
-  displayName: string;
-  username: string;
-  bio: string;
-  joinedDate: string;
-  profileImage: string;
+export type Props = IUser & {
   messages: IMessage[];
   isProfileOwner: boolean;
   openEditModal: () => void;
+  isFollowing: boolean;
+  handleFollow: () => void;
+  handleUnfollow: () => void;
 };
 
 export const Profile: FC<Props> = ({
@@ -37,69 +36,104 @@ export const Profile: FC<Props> = ({
   messages,
   isProfileOwner,
   openEditModal,
+  followers,
+  following,
+  isFollowing,
+  handleFollow,
+  handleUnfollow,
 }) => {
   const date = dayjs(joinedDate).format("MMMM YYYY");
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: followersOpen,
+    onOpen: openFollowers,
+    onClose: closeFollowers,
+  } = useDisclosure();
 
   const handleClick = () => {
     if (isProfileOwner) {
       return openEditModal();
     }
-    console.log("FOLLOW USER");
+    if (isFollowing) {
+      return handleUnfollow();
+    }
+    handleFollow();
   };
 
   return (
-    <Box maxW="600px" m="auto">
-      <Image
-        src={
-          "https://dustinstout.com/wp-content/uploads/2016/04/twitter-header-template.jpg"
-        }
+    <>
+      <UsersModal
+        isOpen={followersOpen}
+        onClose={closeFollowers}
+        users={followers}
       />
-      <Box pt="7px" px="11px" mb="16px">
-        <Flex justify="space-between" align="flex-start">
-          <Box w="25%" mb="12px" mt="-15%" position="relative">
-            <Box w="full" pb="100%" />
-            <Box position="absolute" top="0">
-              <Image borderRadius="full" boxSize="150px" src={profileImage} />
+      <UsersModal isOpen={isOpen} onClose={onClose} users={following} />
+      <Box maxW="600px" m="auto">
+        <Image
+          src={
+            "https://dustinstout.com/wp-content/uploads/2016/04/twitter-header-template.jpg"
+          }
+        />
+        <Box pt="7px" px="11px" mb="16px">
+          <Flex justify="space-between" align="flex-start">
+            <Box w="25%" mb="12px" mt="-15%" position="relative">
+              <Box w="full" pb="100%" />
+              <Box position="absolute" top="0">
+                <Image borderRadius="full" boxSize="150px" src={profileImage} />
+              </Box>
             </Box>
+            <Button mt="5px" onClick={handleClick}>
+              {isProfileOwner ? "Edit" : isFollowing ? "Unfollow" : "Follow"}
+            </Button>
+          </Flex>
+          <Box>
+            <Text fontSize="2xl" fontWeight="extrabold">
+              {displayName}
+            </Text>
+            <Text fontSize="md">@{username}</Text>
           </Box>
-          <Button mt="5px" onClick={handleClick}>
-            {isProfileOwner ? "Edit" : "Follow"}
-          </Button>
-        </Flex>
+          <Box mt="10px">
+            <Text>{bio}</Text>
+          </Box>
+          <Box mt="10px">
+            <Text>Joined: {date}</Text>
+          </Box>
+        </Box>
         <Box>
-          <Text fontSize="2xl" fontWeight="extrabold">
-            {displayName}
+          <Flex>
+            <Text as="button" onClick={openFollowers}>
+              {followers.length}{" "}
+              {followers.length === 1 ? "Follower" : "Followers"}
+            </Text>
+            {following.length ? (
+              <Text as="button" onClick={onOpen}>
+                {following.length} Following
+              </Text>
+            ) : null}
+          </Flex>
+        </Box>
+        <Box flexDirection="column">
+          <Text fontSize="large" fontWeight="bold" mb="16px">
+            Messages
           </Text>
-          <Text fontSize="md">@{username}</Text>
-        </Box>
-        <Box mt="10px">
-          <Text>{bio}</Text>
-        </Box>
-        <Box mt="10px">
-          <Text>Joined: {date}</Text>
+          <Flex flexDir="column" flex="1" gap={2}>
+            {messages.map((message) => (
+              <MessageCard
+                key={message._id}
+                _id={message._id}
+                body={message.body}
+                createdDate={message.createdDate}
+                profileImage={message.author.profileImage}
+                displayName={message.author.displayName}
+                username={message.author.username}
+                likes={message.likes}
+                authorSub={message.author.sub}
+              />
+            ))}
+          </Flex>
         </Box>
       </Box>
-      <Box flexDirection="column">
-        <Text fontSize="large" fontWeight="bold" mb="16px">
-          Messages
-        </Text>
-        <Flex flexDir="column" flex="1" gap={2}>
-          {messages.map((message) => (
-            <MessageCard
-              key={message._id}
-              _id={message._id}
-              body={message.body}
-              createdDate={message.createdDate}
-              profileImage={message.author.profileImage}
-              displayName={message.author.displayName}
-              username={message.author.username}
-              likes={message.likes}
-              authorSub={message.author.sub}
-            />
-          ))}
-        </Flex>
-      </Box>
-    </Box>
+    </>
   );
 };
 
@@ -120,6 +154,7 @@ const ProfilePage = () => {
   });
 
   const isProfileOwner = currentUser?.sub === sub;
+  const isFollowing = !!user?.followers.some((u) => u.sub === currentUser?.sub);
 
   const currentUserMessages = useMemo(() => {
     if (!user || !messages) {
@@ -174,6 +209,59 @@ const ProfilePage = () => {
     setIsLoading(false);
   };
 
+  const handleFollow = async () => {
+    if (!user || !token || !currentUser) {
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+
+      setUser({ ...user, followers: [...user.followers, currentUser] });
+      updateCurrentUser({
+        ...currentUser,
+        following: [...currentUser.following, user],
+      });
+      const { data } = await api.followUser(user.sub, currentUser._id, token);
+      if (!data) {
+        throw new Error("Failed to follow user");
+      }
+      // TODO handle updating the user and current user's followers correctly
+      console.log("DATA", data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Failed to follow user", error);
+    }
+    setIsLoading(false);
+  };
+
+  const handleUnfollow = async () => {
+    if (!user || !token || !currentUser) {
+      return;
+    }
+    try {
+      setIsLoading(true);
+      setUser({
+        ...user,
+        followers: user.followers.filter((u) => u.sub !== currentUser.sub),
+      });
+      updateCurrentUser({
+        ...currentUser,
+        following: currentUser.following.filter((u) => u.sub !== user.sub),
+      });
+      const { data } = await api.unfollowUser(user.sub, currentUser._id, token);
+      if (!data) {
+        throw new Error("Failed to unfollow user");
+      }
+      // TODO handle updating the user and current user's followers correctly
+      console.log("DATA", data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Failed to unfollow user", error);
+    }
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     if (!sub || (user && user.sub === sub) || !token) {
       return;
@@ -199,6 +287,9 @@ const ProfilePage = () => {
         openEditModal={onOpen}
         messages={currentUserMessages}
         isProfileOwner={isProfileOwner}
+        isFollowing={isFollowing}
+        handleFollow={handleFollow}
+        handleUnfollow={handleUnfollow}
       />
     </>
   );

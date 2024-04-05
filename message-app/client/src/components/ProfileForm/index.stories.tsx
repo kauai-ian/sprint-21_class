@@ -18,6 +18,8 @@ const args: Props = {
   ...mockUser,
   isLoading: false,
   onSubmit: () => {},
+  followers: [],
+  following: [],
 };
 
 export const Primary: Story = {
