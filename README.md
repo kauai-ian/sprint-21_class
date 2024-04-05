@@ -3,6 +3,20 @@
 ## TODO
 
 Now that we have the user authenticating, we want to make sure we can store that user's information in our Database
+
+Auth 0 fields:
+- email
+- family_name
+- given_name
+- locale
+- name -> displayName
+- nickname -> username
+- picture
+- sub
+- updated_at
+
+
+
 1. Save User info on our backend
    1. Create user model
    2. Setup user routes & controllers

@@ -6,11 +6,12 @@ import { useNavigate } from "react-router-dom";
 const Callback = () => {
   const { isAuthenticated, isLoading, user } = useAuth0();
   const navigate = useNavigate();
+  console.log(JSON.stringify(user));
   // Once we have the user, send a request to the server to create a new user in our database
   //  once the user is stored in our db we can redirect the user to the profile page
   // This is kind of how it will look
   const createOrUpdateUser = async () => {
-    fetch("http://localhost:5000/users", {
+    fetch("http://localhost:3000/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,11 +22,11 @@ const Callback = () => {
     });
   };
 
-  useEffect(() => {
-    if (!isLoading && isAuthenticated && user) {
-      createOrUpdateUser();
-    }
-  }, [isLoading, isAuthenticated, user]);
+  // useEffect(() => {
+  //   if (!isLoading && isAuthenticated && user) {
+  //     createOrUpdateUser();
+  //   }
+  // }, [isLoading, isAuthenticated, user]);
 
   return <Spinner />;
 };
