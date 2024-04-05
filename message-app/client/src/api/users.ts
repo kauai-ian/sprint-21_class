@@ -11,3 +11,8 @@ export const createOrUpdate = async (user: User) => {
   });
   return res.json();
 }
+
+export const getUser = async (sub: string) => {
+  const res = await fetch(`${ROOT}/${sub}`);
+  return res.json();
+}

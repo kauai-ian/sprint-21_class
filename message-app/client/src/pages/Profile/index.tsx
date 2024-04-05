@@ -1,7 +1,12 @@
-import { Box, Button, Flex, Image, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Spinner,
+  Button,
+  Flex,
+  Image,
+  Text,
+} from "@chakra-ui/react";
 import MessageCard from "../../components/MessageCard";
-import { mockUser } from "../../mocks/users";
-import { mockMessage } from "../../mocks/messages";
 import { IMessage } from "../../types";
 import { FC } from "react";
 import dayjs from "dayjs";
@@ -85,17 +90,20 @@ export const Profile: FC<Props> = ({
 const ProfilePage = () => {
   // TODO get user data from API
   // const { sub } = useParams()
-  const { currentUser } = useCurrentUser();
-  console.log("SUB ", currentUser);
+  const { currentUser, isLoadingUser } = useCurrentUser();
+  console.log("CURRENT USER IN PROFILE ", currentUser);
+  if (isLoadingUser || !currentUser) {
+    return <Spinner />;
+  }
 
   return (
     <Profile
-      displayName={mockUser.displayName}
-      username={mockUser.username}
+      displayName={currentUser.displayName}
+      username={currentUser.username}
       bio="Hello, World!"
-      joinedDate={new Date().toISOString()}
-      profileImage={mockUser.profileImage}
-      messages={[mockMessage]}
+      joinedDate={currentUser.joinedDate}
+      profileImage={currentUser.profileImage}
+      messages={[]}
     />
   );
 };

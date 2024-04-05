@@ -2,9 +2,10 @@ import { useContext } from "react";
 import { UserContext } from "../context/UserContext";
 
 const useCurrentUser = () => {
-  const { currentUser, setCurrentUser } = useContext(UserContext);
+  const { currentUser, setCurrentUser, isLoadingUser } =
+    useContext(UserContext);
 
-  return { currentUser, setCurrentUser };
+  return { currentUser, setCurrentUser, isLoadingUser };
 };
 
 export default useCurrentUser;
