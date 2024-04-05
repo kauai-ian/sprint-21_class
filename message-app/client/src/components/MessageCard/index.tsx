@@ -9,6 +9,7 @@ export type Props = {
   profileImage: string;
   displayName: string;
   username: string;
+  userId: string;
   likes: IMessage["likes"];
 };
 
@@ -18,6 +19,7 @@ const MessageCard: FC<Props> = ({
   profileImage,
   displayName,
   username,
+  userId,
   likes,
 }) => {
   const date = dayjs(createdDate).format("MMM D, YYYY");
@@ -41,7 +43,7 @@ const MessageCard: FC<Props> = ({
       <GridItem>
         <Flex flexDir="column" gap={2} justify="space-between">
           <Flex gap={1} align="center">
-            <Text fontWeight="extrabold" fontSize="md">
+            <Text as="a" href={`/profile/${userId}`} fontWeight="extrabold" fontSize="md">
               {displayName}
             </Text>
             <Text fontSize="sm">@{username}</Text>

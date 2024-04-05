@@ -23,6 +23,7 @@ export const Feed: FC = () => {
               <MessageCard
                 key={message._id}
                 body={message.body}
+                userId={message.author.sub}
                 createdDate={message.createdDate}
                 profileImage={message.author.profileImage}
                 displayName={message.author.displayName}

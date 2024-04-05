@@ -20,6 +20,7 @@ const args: Props = {
   username: mockUser.username,
   displayName: mockUser.displayName,
   likes: mockMessage.likes,
+  userId: mockUser._id,
 };
 
 export const Primary: Story = {
