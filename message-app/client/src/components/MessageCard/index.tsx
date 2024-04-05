@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import useCurrentUser from "../../hooks/useCurrentUser";
 import useMessages from "../../hooks/useMessages";
 import * as api from "../../api/messages";
-import { FiHeart } from "react-icons/fi";
+import { FiHeart, FiTrash2 } from "react-icons/fi";
 
 export type Props = {
   body: string;
@@ -29,8 +29,9 @@ const MessageCard: FC<Props> = ({
   _id,
 }) => {
   const { currentUser } = useCurrentUser();
-  const { updateMessageLikes } = useMessages();
+  const { updateMessageLikes, deleteMessage } = useMessages();
   const alreadyLiked = likes.some((like) => like._id === currentUser?._id);
+  const isAuthor = currentUser?.sub === authorSub;
 
   const date = dayjs(createdDate).format("MMM D, YYYY");
 
@@ -48,6 +49,12 @@ const MessageCard: FC<Props> = ({
 
     await api.likeMessage(_id, currentUser._id);
     console.log("Liked!");
+  };
+
+  const handleDelete = async () => {
+    deleteMessage(_id);
+    await api.deleteMessage(_id);
+    console.log("Deleted!");
   };
 
   return (
@@ -68,7 +75,12 @@ const MessageCard: FC<Props> = ({
         />
       </GridItem>
       <GridItem>
-        <Flex flexDir="column" gap={2} justify="space-between">
+        <Flex
+          flexDir="column"
+          gap={2}
+          justify="space-between"
+          position="relative"
+        >
           <Flex gap={1} align="center">
             <Text
               as="a"
@@ -100,6 +112,19 @@ const MessageCard: FC<Props> = ({
               {likes.length} like{likes.length !== 1 && "s"}
             </Text>
           </Flex>
+          {isAuthor && (
+            <Icon
+              as={FiTrash2}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              position="absolute"
+              top="0"
+              right="0"
+              _hover={{ cursor: "pointer" }}
+              onClick={handleDelete}
+            />
+          )}
         </Flex>
       </GridItem>
     </Grid>
