@@ -123,7 +123,25 @@ exports.updateUser = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error");
+    return response({
+      res,
+      status: 500,
+      message: "Server error",
+    });
+  }
+}
+
+exports.listUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    return response({
+      res,
+      status: 200,
+      message: "Users found",
+      data: users,
+    });
+  } catch (error) {
+    console.error(error);
     return response({
       res,
       status: 500,
