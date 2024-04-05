@@ -15,6 +15,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       clientId="MgV7TUQxUjLC7mnzZE2wwF3sblYnuoJO"
       authorizationParams={{
         redirect_uri: `${window.location.origin}/callback`,
+        audience: "my-express-app",
       }}
     >
       <UserProvider>

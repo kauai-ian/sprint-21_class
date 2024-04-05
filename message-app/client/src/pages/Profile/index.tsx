@@ -1,6 +1,5 @@
 import {
   Box,
-  Spinner,
   Button,
   Flex,
   Image,
@@ -16,6 +15,7 @@ import useCurrentUser from "../../hooks/useCurrentUser";
 import * as api from "../../api/users";
 import useMessages from "../../hooks/useMessages";
 import ProfileForm, { FormData } from "../../components/ProfileForm";
+import Loading from "../../components/Loading";
 
 export type Props = {
   displayName: string;
@@ -106,7 +106,8 @@ export const Profile: FC<Props> = ({
 const ProfilePage = () => {
   const { sub } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { addUser, currentUser, updateCurrentUser, users, token } = useCurrentUser();
+  const { addUser, currentUser, updateCurrentUser, users, token } =
+    useCurrentUser();
   const [isLoading, setIsLoading] = useState(false);
   const { messages } = useMessages();
 
@@ -155,7 +156,11 @@ const ProfilePage = () => {
       }
 
       setIsLoading(true);
-      const { data } = await api.updateUser(user.sub, { ...user, ...formData }, token);
+      const { data } = await api.updateUser(
+        user.sub,
+        { ...user, ...formData },
+        token
+      );
       if (!data) {
         throw new Error("Failed to update profile");
       }
@@ -170,14 +175,14 @@ const ProfilePage = () => {
   };
 
   useEffect(() => {
-    if (!sub || (user && user.sub === sub)) {
+    if (!sub || (user && user.sub === sub) || !token) {
       return;
     }
     fetchUser();
-  }, [sub, user]);
+  }, [sub, user, token]);
 
   if (!user) {
-    return <Spinner />;
+    return <Loading />;
   }
 
   return (

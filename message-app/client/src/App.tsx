@@ -6,7 +6,7 @@ import Feed from "./pages/Feed";
 import Callback from "./pages/Callback";
 import AuthRoute from "./components/AuthRoute";
 import { useAuth0 } from "@auth0/auth0-react";
-import { Center, Container, Spinner } from "@chakra-ui/react";
+import Loading from "./components/Loading";
 
 function App() {
   const { isLoading } = useAuth0();
@@ -14,11 +14,7 @@ function App() {
   return (
     <Layout>
       {isLoading ? (
-        <Container h="100%">
-          <Center mt="100px">
-            <Spinner />
-          </Center>
-        </Container>
+        <Loading />
       ) : (
         <Routes>
           <Route path="/" element={<Home />} />

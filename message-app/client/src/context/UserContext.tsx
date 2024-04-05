@@ -51,6 +51,7 @@ const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const fetchCurrentUser = async () => {
+
     if (isLoading || !isAuthenticated || !auth0User?.sub || !token) {
       return;
     }
@@ -74,6 +75,7 @@ const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
       return;
     }
     const token = await getAccessTokenSilently();
+    console.log("TOKEN", token)
     if (!token) {
       throw new Error("Failed to get token");
     }
