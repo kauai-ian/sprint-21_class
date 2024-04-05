@@ -9,6 +9,7 @@ export type UserContextType = {
   isLoadingUser: boolean;
   users: IUser[];
   addUser: (user: IUser) => void;
+  updateCurrentUser: (user: IUser) => void;
 };
 
 const initState: UserContextType = {
@@ -17,6 +18,7 @@ const initState: UserContextType = {
   isLoadingUser: true,
   users: [],
   addUser: () => {},
+  updateCurrentUser: () => {},
 };
 
 export const UserContext = createContext<UserContextType>(initState);
@@ -29,6 +31,13 @@ const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const addUser = (user: IUser) => {
     setUsers((prevUsers) => [...prevUsers, user]);
+  };
+
+  const updateCurrentUser = (user: IUser) => {
+    setCurrentUser(user);
+    setUsers((prevUsers) =>
+      prevUsers.map((u) => (u.sub === user.sub ? user : u))
+    );
   };
 
   const fetchCurrentUser = async () => {
@@ -65,7 +74,14 @@ const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   return (
     <UserContext.Provider
-      value={{ currentUser, setCurrentUser, isLoadingUser, users, addUser }}
+      value={{
+        currentUser,
+        setCurrentUser,
+        isLoadingUser,
+        users,
+        addUser,
+        updateCurrentUser,
+      }}
     >
       {children}
     </UserContext.Provider>

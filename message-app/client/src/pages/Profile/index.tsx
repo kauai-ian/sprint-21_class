@@ -1,4 +1,12 @@
-import { Box, Spinner, Button, Flex, Image, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Spinner,
+  Button,
+  Flex,
+  Image,
+  Text,
+  useDisclosure,
+} from "@chakra-ui/react";
 import MessageCard from "../../components/MessageCard";
 import { IMessage, IUser } from "../../types";
 import { FC, useState, useEffect, useMemo } from "react";
@@ -7,6 +15,7 @@ import { useParams } from "react-router-dom";
 import useCurrentUser from "../../hooks/useCurrentUser";
 import * as api from "../../api/users";
 import useMessages from "../../hooks/useMessages";
+import ProfileForm, { FormData } from "../../components/ProfileForm";
 
 export type Props = {
   displayName: string;
@@ -16,6 +25,7 @@ export type Props = {
   profileImage: string;
   messages: IMessage[];
   isProfileOwner: boolean;
+  openEditModal: () => void;
 };
 
 export const Profile: FC<Props> = ({
@@ -26,8 +36,17 @@ export const Profile: FC<Props> = ({
   profileImage,
   messages,
   isProfileOwner,
+  openEditModal,
 }) => {
   const date = dayjs(joinedDate).format("MMMM YYYY");
+
+  const handleClick = () => {
+    if (isProfileOwner) {
+      return openEditModal();
+    }
+    console.log("FOLLOW USER");
+  };
+
   return (
     <Box maxW="600px" m="auto">
       <Image
@@ -43,8 +62,9 @@ export const Profile: FC<Props> = ({
               <Image borderRadius="full" boxSize="150px" src={profileImage} />
             </Box>
           </Box>
-          {/* TODO Swap for "EDIT" */}
-          <Button mt="5px">{isProfileOwner ? "Edit" : "Follow"}</Button>
+          <Button mt="5px" onClick={handleClick}>
+            {isProfileOwner ? "Edit" : "Follow"}
+          </Button>
         </Flex>
         <Box>
           <Text fontSize="2xl" fontWeight="extrabold">
@@ -85,8 +105,11 @@ export const Profile: FC<Props> = ({
 
 const ProfilePage = () => {
   const { sub } = useParams();
-  const { addUser, currentUser, users } = useCurrentUser();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { addUser, currentUser, updateCurrentUser, users } = useCurrentUser();
+  const [isLoading, setIsLoading] = useState(false);
   const { messages } = useMessages();
+
   // Check if we have already fetched the user
   const [user, setUser] = useState<IUser | undefined>(() => {
     if (currentUser && currentUser.sub === sub) {
@@ -96,6 +119,7 @@ const ProfilePage = () => {
   });
 
   const isProfileOwner = currentUser?.sub === sub;
+
   const currentUserMessages = useMemo(() => {
     if (!user || !messages) {
       return [];
@@ -124,6 +148,27 @@ const ProfilePage = () => {
     }
   };
 
+  const updateUser = async (formData: FormData) => {
+    try {
+      if (!user || !formData) {
+        return;
+      }
+
+      setIsLoading(true);
+      const { data } = await api.updateUser(user.sub, { ...user, ...formData });
+      if (!data) {
+        throw new Error("Failed to update profile");
+      }
+      updateCurrentUser(data);
+      setUser({ ...user, ...formData });
+      setIsLoading(false);
+      onClose();
+    } catch (error) {
+      console.error("Failed to update profile", error);
+    }
+    setIsLoading(false);
+  };
+
   useEffect(() => {
     if (!sub || (user && user.sub === sub)) {
       return;
@@ -136,11 +181,21 @@ const ProfilePage = () => {
   }
 
   return (
-    <Profile
-      {...user}
-      messages={currentUserMessages}
-      isProfileOwner={isProfileOwner}
-    />
+    <>
+      <ProfileForm
+        isOpen={isOpen}
+        onClose={onClose}
+        isLoading={isLoading}
+        onSubmit={updateUser}
+        {...user}
+      />
+      <Profile
+        {...user}
+        openEditModal={onOpen}
+        messages={currentUserMessages}
+        isProfileOwner={isProfileOwner}
+      />
+    </>
   );
 };
 

@@ -13,24 +13,40 @@ import {
   Textarea,
 } from "@chakra-ui/react";
 import { FC, useRef, useState } from "react";
+import { IUser } from "../../types";
 
-export type Props = {
-  isOpen: boolean;
-  onClose: () => void;
+export type FormData = {
   profileImage: string;
   displayName: string;
   bio: string;
+  headerImage?: string;
 };
 
-const ProfileForm: FC<Props> = ({ isOpen, onClose, profileImage, displayName, bio }) => {
+export type Props = IUser & {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (formData: FormData) => void;
+  isLoading: boolean;
+};
+
+const ProfileForm: FC<Props> = ({
+  isOpen,
+  onClose,
+  isLoading,
+  onSubmit,
+  ...user
+}) => {
   const initialRef = useRef(null);
   const [formData, setFormData] = useState({
-    profileImage,
-    displayName,
-    bio,
+    profileImage: user.profileImage,
+    headerImage: user.headerImage,
+    displayName: user.displayName,
+    bio: user.bio,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -38,7 +54,10 @@ const ProfileForm: FC<Props> = ({ isOpen, onClose, profileImage, displayName, bi
   };
 
   const handleSubmit = async () => {
-    // TODO: Implement the submit logic
+    if (!formData.profileImage || !formData.displayName || !formData.bio) {
+      return;
+    }
+    onSubmit(formData);
   };
 
   return (
@@ -49,9 +68,17 @@ const ProfileForm: FC<Props> = ({ isOpen, onClose, profileImage, displayName, bi
         <ModalCloseButton />
         <ModalBody pb={6}>
           <FormControl>
-            <FormLabel>Profile image</FormLabel>
+            <FormLabel>Header image</FormLabel>
             <Input
               ref={initialRef}
+              value={formData.headerImage}
+              name="headerImage"
+              onChange={handleChange}
+            />
+          </FormControl>
+          <FormControl>
+            <FormLabel>Profile image</FormLabel>
+            <Input
               value={formData.profileImage}
               name="profileImage"
               onChange={handleChange}
@@ -66,17 +93,18 @@ const ProfileForm: FC<Props> = ({ isOpen, onClose, profileImage, displayName, bi
             />
           </FormControl>
           <FormControl>
-            <FormLabel>Name</FormLabel>
-            <Textarea
-              value={formData.bio}
-              name="bio"
-              onChange={handleChange}
-            />
+            <FormLabel>Bio</FormLabel>
+            <Textarea value={formData.bio} name="bio" onChange={handleChange} />
           </FormControl>
         </ModalBody>
 
         <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
+          <Button
+            isLoading={isLoading}
+            colorScheme="blue"
+            mr={3}
+            onClick={handleSubmit}
+          >
             Save
           </Button>
           <Button onClick={onClose}>Cancel</Button>

@@ -21,6 +21,8 @@ const args: Props = {
   profileImage:
     "https://smartcdn.gprod.postmedia.digital/nationalpost/wp-content/uploads/2016/03/hoff.jpg",
   messages: [mockMessage, mockMessage, mockMessage],
+  isProfileOwner: true,
+  openEditModal: () => {},
 };
 
 export const Primary: Story = {

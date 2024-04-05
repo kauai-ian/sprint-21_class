@@ -16,3 +16,14 @@ export const getUser = async (sub: string) => {
   const res = await fetch(`${ROOT}/${sub}`);
   return res.json();
 }
+
+export const updateUser = async (sub: string, user: User) => {
+  const res = await fetch(`${ROOT}/${sub}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(user),
+  });
+  return res.json();
+}
