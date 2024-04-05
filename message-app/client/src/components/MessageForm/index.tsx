@@ -1,14 +1,5 @@
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
   FormControl,
-  FormLabel,
-  Input,
-  ModalFooter,
   Button,
   Textarea,
   Flex,
@@ -16,18 +7,32 @@ import {
   Image,
 } from "@chakra-ui/react";
 import { FC, useState } from "react";
+import useCurrentUser from "../../hooks/useCurrentUser";
+import useMessages from "../../hooks/useMessages";
+import * as api from "../../api/messages";
 
-export type Props = {
-  onSubmit: (body: string) => void;
-  profileImage: string;
-};
-
-const MessageForm: FC<Props> = ({ onSubmit, profileImage }) => {
+const MessageForm: FC = () => {
+  const [loading, setLoading] = useState(false);
+  const { currentUser } = useCurrentUser();
+  const { addMessage } = useMessages();
   const [body, setBody] = useState("");
 
   const handleSubmit = async () => {
-    // TODO: Implement the submit logic
-    onSubmit(body);
+    try {
+      if (!body || !currentUser) {
+        return;
+      }
+      setLoading(true);
+      const { data } = await api.createMessage(body, currentUser._id);
+      if (!data) {
+        throw new Error("Failed to create message");
+      }
+      addMessage(data);
+      setBody("");
+    } catch (error) {
+      console.error("Failed to create message", error);
+    }
+    setLoading(false);
   };
 
   return (
@@ -37,7 +42,10 @@ const MessageForm: FC<Props> = ({ onSubmit, profileImage }) => {
           borderRadius="50%"
           h="40px"
           w="full"
-          src={profileImage}
+          src={
+            currentUser?.profileImage ||
+            "https://avatars.githubusercontent.com/u/20189952"
+          }
           alt="Profile image"
         />
       </Box>
@@ -51,7 +59,7 @@ const MessageForm: FC<Props> = ({ onSubmit, profileImage }) => {
           />
         </FormControl>
         <Flex justify="flex-end">
-          <Button onClick={handleSubmit}>
+          <Button isLoading={loading} onClick={handleSubmit}>
             Post
           </Button>
         </Flex>

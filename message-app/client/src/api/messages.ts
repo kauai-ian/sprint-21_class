@@ -1,6 +1,6 @@
 const ROOT = "http://localhost:3000/messages";
 
-export const getMessages = async () => {
+export const listMessages = async () => {
   const response = await fetch(ROOT);
   return response.json();
 };
