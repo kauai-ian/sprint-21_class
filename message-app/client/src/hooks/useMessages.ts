@@ -2,9 +2,10 @@ import { useContext } from "react";
 import { MessagesContext } from "../context/MessagesContext";
 import useCurrentUser from "./useCurrentUser";
 import * as api from "../api/messages";
+import { IUser } from "../types";
 
 const useMessages = () => {
-  const { currentUser } = useCurrentUser();
+  const { currentUser, token } = useCurrentUser();
   const {
     messages,
     isLoading,
@@ -15,9 +16,35 @@ const useMessages = () => {
     deleteMessage,
   } = useContext(MessagesContext);
 
+  const handleLike = async (
+    _id: string,
+    alreadyLiked: boolean,
+    likes: IUser[]
+  ) => {
+    if (!currentUser) {
+      return;
+    }
+
+    // Optimistic update -> Don't wait for the server to respond
+    const newLikes = alreadyLiked
+      ? likes.filter((like) => like._id !== currentUser._id)
+      : [...likes, currentUser];
+    console.log(newLikes);
+    updateMessageLikes(_id, newLikes);
+
+    await api.likeMessage(_id, currentUser._id);
+    console.log("Liked!");
+  };
+
+  const handleDelete = async (_id: string) => {
+    deleteMessage(_id);
+    await api.deleteMessage(_id);
+    console.log("Deleted!");
+  };
+
   const createMessage = async (body: string, cb?: () => void) => {
     try {
-      if (!currentUser) {
+      if (!currentUser || !token) {
         return;
       }
 
@@ -35,7 +62,6 @@ const useMessages = () => {
       console.error("Failed to create message", error);
     }
     setIsLoading(false);
-
   };
 
   return {
@@ -46,6 +72,8 @@ const useMessages = () => {
     deleteMessage,
     updateMessageLikes,
     createMessage,
+    handleLike,
+    handleDelete,
   };
 };
 

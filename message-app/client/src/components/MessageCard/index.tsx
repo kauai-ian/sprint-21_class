@@ -4,7 +4,6 @@ import { IMessage } from "../../types";
 import dayjs from "dayjs";
 import useCurrentUser from "../../hooks/useCurrentUser";
 import useMessages from "../../hooks/useMessages";
-import * as api from "../../api/messages";
 import { FiHeart, FiTrash2 } from "react-icons/fi";
 
 export type Props = {
@@ -29,32 +28,18 @@ const MessageCard: FC<Props> = ({
   _id,
 }) => {
   const { currentUser } = useCurrentUser();
-  const { updateMessageLikes, deleteMessage } = useMessages();
+  const { handleLike, handleDelete } = useMessages();
   const alreadyLiked = likes.some((like) => like._id === currentUser?._id);
   const isAuthor = currentUser?.sub === authorSub;
 
   const date = dayjs(createdDate).format("MMM D, YYYY");
 
-  const handleLike = async () => {
-    if (!currentUser) {
-      return;
-    }
-
-    // Optimistic update -> Don't wait for the server to respond
-    const newLikes = alreadyLiked
-      ? likes.filter((like) => like._id !== currentUser._id)
-      : [...likes, currentUser];
-    console.log(newLikes);
-    updateMessageLikes(_id, newLikes);
-
-    await api.likeMessage(_id, currentUser._id);
-    console.log("Liked!");
+  const onClickLike = () => {
+    handleLike(_id, alreadyLiked, likes);
   };
 
-  const handleDelete = async () => {
-    deleteMessage(_id);
-    await api.deleteMessage(_id);
-    console.log("Deleted!");
+  const onClickDelete = () => {
+    handleDelete(_id);
   };
 
   return (
@@ -100,7 +85,7 @@ const MessageCard: FC<Props> = ({
               gap={2}
               alignItems="center"
               as="button"
-              onClick={handleLike}
+              onClick={onClickLike}
               _focus={{ outline: "transparent" }}
               _hover={{ borderColor: "transparent" }}
               color={alreadyLiked ? "pink" : "initial"}
@@ -122,7 +107,7 @@ const MessageCard: FC<Props> = ({
               top="0"
               right="0"
               _hover={{ cursor: "pointer" }}
-              onClick={handleDelete}
+              onClick={onClickDelete}
             />
           )}
         </Flex>

@@ -12,16 +12,22 @@ export const createOrUpdate = async (user: User) => {
   return res.json();
 }
 
-export const getUser = async (sub: string) => {
-  const res = await fetch(`${ROOT}/${sub}`);
+export const getUser = async (sub: string, token: string) => {
+  const res = await fetch(`${ROOT}/${sub}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    },
+  });
   return res.json();
 }
 
-export const updateUser = async (sub: string, user: User) => {
+export const updateUser = async (sub: string, user: User, token: string) => {
   const res = await fetch(`${ROOT}/${sub}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
     },
     body: JSON.stringify(user),
   });

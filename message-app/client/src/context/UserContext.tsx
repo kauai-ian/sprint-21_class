@@ -10,6 +10,8 @@ export type UserContextType = {
   users: IUser[];
   addUser: (user: IUser) => void;
   updateCurrentUser: (user: IUser) => void;
+  token?: string;
+  setToken: (token: string) => void;
 };
 
 const initState: UserContextType = {
@@ -19,15 +21,23 @@ const initState: UserContextType = {
   users: [],
   addUser: () => {},
   updateCurrentUser: () => {},
+  token: undefined,
+  setToken: () => {},
 };
 
 export const UserContext = createContext<UserContextType>(initState);
 
 const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading, user: auth0User } = useAuth0();
+  const {
+    isAuthenticated,
+    isLoading,
+    user: auth0User,
+    getAccessTokenSilently,
+  } = useAuth0();
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const [currentUser, setCurrentUser] = useState<IUser | undefined>(undefined);
   const [users, setUsers] = useState<IUser[]>([]);
+  const [token, setToken] = useState<string | undefined>(undefined);
 
   const addUser = (user: IUser) => {
     setUsers((prevUsers) => [...prevUsers, user]);
@@ -41,11 +51,11 @@ const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const fetchCurrentUser = async () => {
-    if (isLoading || !isAuthenticated || !auth0User?.sub) {
+    if (isLoading || !isAuthenticated || !auth0User?.sub || !token) {
       return;
     }
     try {
-      const { data } = await api.getUser(auth0User.sub);
+      const { data } = await api.getUser(auth0User.sub, token);
 
       if (!data) {
         throw new Error("Failed to get current user");
@@ -59,6 +69,17 @@ const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
     setIsLoadingUser(false);
   };
 
+  const getToken = async () => {
+    if (!isAuthenticated) {
+      return;
+    }
+    const token = await getAccessTokenSilently();
+    if (!token) {
+      throw new Error("Failed to get token");
+    }
+    setToken(token);
+  };
+
   useEffect(() => {
     if (isLoading) {
       return;
@@ -67,10 +88,18 @@ const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
       setIsLoadingUser(false);
       return;
     }
+    getToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, isLoading, auth0User]);
+
+  useEffect(() => {
+    if (!token) {
+      return;
+    }
     // Use the sub from the auth0User to fetch the user from our DB
     fetchCurrentUser();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, isLoading, auth0User]);
+  }, [token]);
 
   return (
     <UserContext.Provider
@@ -81,6 +110,8 @@ const UserProvider: FC<{ children: ReactNode }> = ({ children }) => {
         users,
         addUser,
         updateCurrentUser,
+        token,
+        setToken,
       }}
     >
       {children}

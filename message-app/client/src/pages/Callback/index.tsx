@@ -6,8 +6,8 @@ import * as api from "../../api/users";
 import useCurrentUser from "../../hooks/useCurrentUser";
 
 const Callback = () => {
-  const { isAuthenticated, isLoading, user } = useAuth0();
-  const { setCurrentUser } = useCurrentUser();
+  const { isAuthenticated, isLoading, user, getAccessTokenSilently } = useAuth0();
+  const { setCurrentUser, setToken } = useCurrentUser();
   const navigate = useNavigate();
   // Once we have the user, send a request to the server to create a new user in our database
   //  once the user is stored in our db we can redirect the user to the profile page
@@ -21,7 +21,14 @@ const Callback = () => {
       alert("Failed to create user");
       return navigate("/");
     }
+
+    const token = await getAccessTokenSilently();
+    if (!token) {
+      alert("Failed to get token");
+      return navigate("/");
+    }
     setCurrentUser(data);
+    setToken(token);
     navigate(`/profile/${data.sub}`);
   };
 

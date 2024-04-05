@@ -106,7 +106,7 @@ export const Profile: FC<Props> = ({
 const ProfilePage = () => {
   const { sub } = useParams();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { addUser, currentUser, updateCurrentUser, users } = useCurrentUser();
+  const { addUser, currentUser, updateCurrentUser, users, token } = useCurrentUser();
   const [isLoading, setIsLoading] = useState(false);
   const { messages } = useMessages();
 
@@ -130,12 +130,12 @@ const ProfilePage = () => {
 
   // Fetch the user if we haven't already
   const fetchUser = async () => {
-    if (user || !sub) {
+    if (user || !sub || !token) {
       return;
     }
 
     try {
-      const { data } = await api.getUser(sub);
+      const { data } = await api.getUser(sub, token);
 
       if (!data) {
         throw new Error("Failed to get user");
@@ -150,12 +150,12 @@ const ProfilePage = () => {
 
   const updateUser = async (formData: FormData) => {
     try {
-      if (!user || !formData) {
+      if (!user || !formData || !token) {
         return;
       }
 
       setIsLoading(true);
-      const { data } = await api.updateUser(user.sub, { ...user, ...formData });
+      const { data } = await api.updateUser(user.sub, { ...user, ...formData }, token);
       if (!data) {
         throw new Error("Failed to update profile");
       }
