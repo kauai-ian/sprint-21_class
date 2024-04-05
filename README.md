@@ -26,8 +26,10 @@ Auth 0 fields:
    3. Test routes via postman 
    4. Hook up BE routes w/ our FE (Register / sign in & create user)
 2. Get user on the Client
-   1. Store user data returned from login/register
-   2. If already logged in/registered, fetch user and store on client
+   1. Option 1: use Auth0 "user.sub" to fetch the user from the BE everytime we land on the profile
+   2. Option 2: store the user returned from the create or update user BE endpoint, pass the user state in from the top level app, prop drill everywhere we might need it
+   3. Option 3: Create a context to keep track of the user across our app
+   
 
 3. Add ability for the user to post messages
    1. Create the message model

@@ -1,21 +1,13 @@
-const ROOT = 'http://localhost:3000/api/users';
+const ROOT = 'http://localhost:3000/users';
+import { User } from "@auth0/auth0-react";
 
-export type CreateUserRequest = {
-  username: string;
-  sub: string;
-  email: string;
-  displayName: string;
-  profileImage: string;
-  bio: string;
-  headerImage: string;
-};
-
-export const createOrUpdate = async (user) => {
-  return fetch(ROOT, {
+export const createOrUpdate = async (user: User) => {
+  const res = await fetch(ROOT, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(user),
   });
+  return res.json();
 }
