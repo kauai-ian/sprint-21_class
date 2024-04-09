@@ -21,7 +21,7 @@ const useMessages = () => {
     alreadyLiked: boolean,
     likes: IUser[]
   ) => {
-    if (!currentUser) {
+    if (!currentUser || !token) {
       return;
     }
 
@@ -32,13 +32,17 @@ const useMessages = () => {
     console.log(newLikes);
     updateMessageLikes(_id, newLikes);
 
-    await api.likeMessage(_id, currentUser._id);
+    await api.likeMessage(_id, currentUser._id, token);
     console.log("Liked!");
   };
 
   const handleDelete = async (_id: string) => {
+    if (!currentUser || !token) {
+      return;
+    }
+
     deleteMessage(_id);
-    await api.deleteMessage(_id);
+    await api.deleteMessage(_id, token);
     console.log("Deleted!");
   };
 
@@ -49,7 +53,7 @@ const useMessages = () => {
       }
 
       setIsLoading(true);
-      const { data } = await api.createMessage(body, currentUser._id);
+      const { data } = await api.createMessage(body, currentUser._id, token);
       if (!data) {
         throw new Error("Failed to create message");
       }
