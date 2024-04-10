@@ -1,4 +1,11 @@
-import { useState, FC, createContext, ReactNode, useEffect } from "react";
+import {
+  useState,
+  FC,
+  createContext,
+  ReactNode,
+  useEffect,
+  useMemo,
+} from "react";
 import { Notification, IUser } from "../types";
 import { markRead } from "../api/notifications";
 import { getUserNotifications } from "../api/users";
@@ -8,6 +15,7 @@ import { mockUser } from "../mocks/users";
 export type NotificationContextType = {
   notifications: Notification[] | undefined;
   isLoading: boolean;
+  hasUnreadNotifications: boolean;
   addNotification: (notification: Notification) => void;
   markNotificationRead: (_id: string) => void;
   setIsLoading: (loading: boolean) => void;
@@ -16,6 +24,7 @@ export type NotificationContextType = {
 const initState: NotificationContextType = {
   notifications: undefined,
   isLoading: true,
+  hasUnreadNotifications: false,
   addNotification: () => {},
   markNotificationRead: () => {},
   setIsLoading: () => {},
@@ -40,6 +49,10 @@ const NotificationsProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { currentUser, token } = useCurrentUser();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const hasUnreadNotifications = useMemo(() => {
+    return notifications.some((notification) => !notification.isRead);
+  }, [notifications]);
 
   const addNotification = (notification: Notification) => {
     setNotifications((prev) => [notification, ...prev]);
@@ -90,6 +103,7 @@ const NotificationsProvider: FC<{ children: ReactNode }> = ({ children }) => {
         addNotification,
         markNotificationRead,
         setIsLoading,
+        hasUnreadNotifications,
       }}
     >
       {children}
