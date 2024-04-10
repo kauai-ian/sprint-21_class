@@ -7,7 +7,7 @@ const MessageSchema = new Schema({
   type: {
     type: String,
     required: true,
-    enum: ["LIKE", "FOLLOW", "UNLIKE", "UNFOLLOW"],
+    enum: ["LIKE", "FOLLOW", 'NEW_MESSAGE'],
   },
   createdDate: {
     type: Date,

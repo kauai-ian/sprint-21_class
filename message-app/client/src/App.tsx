@@ -8,10 +8,13 @@ import AuthRoute from "./components/AuthRoute";
 import { useAuth0 } from "@auth0/auth0-react";
 import Loading from "./components/Loading";
 import useSocket from "./hooks/useSocket";
+import useNotifications from "./hooks/useNotifications";
 
 function App() {
   useSocket();
-  const { isLoading } = useAuth0();
+  const { isLoading: isLoadingAuth } = useAuth0();
+  const { isLoading: isLoadingNotifications } = useNotifications();
+  const isLoading = isLoadingAuth || isLoadingNotifications;
 
   return (
     <Layout>

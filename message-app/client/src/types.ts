@@ -1,4 +1,3 @@
-
 export type IUser = {
   _id: string;
   username: string;
@@ -23,4 +22,14 @@ export type IMessage = {
   author: IUser;
   authorId: string;
   likeIds: string[];
+};
+
+export type Notification = {
+  _id: string;
+  __v: number;
+  type: "LIKE" | "FOLLOW" | "NEW_MESSAGE";
+  createdDate: string;
+  user: IUser;
+  author: IUser;
+  isRead: boolean;
 };
