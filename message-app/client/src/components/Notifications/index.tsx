@@ -1,9 +1,7 @@
 import { FiBell } from "react-icons/fi";
 import useNotifications from "../../hooks/useNotifications";
 import {
-  useDisclosure,
   Icon,
-  Button,
   Box,
   Text,
   Popover,
@@ -14,25 +12,11 @@ import {
   PopoverHeader,
   PopoverTrigger,
 } from "@chakra-ui/react";
-import { IUser, Notification } from "../../types";
+import NotificationCard from "./NotificationCard";
 
 const Notifications = () => {
-  const { isOpen, onOpen } = useDisclosure();
-  const { notifications, hasUnreadNotification, markNotificationRead } =
+  const { notifications, hasUnreadNotifications, markNotificationRead } =
     useNotifications();
-
-  const getNotificationCopy = (user: IUser, type: Notification["type"]) => {
-    switch (type) {
-      case "LIKE":
-        return `${user.displayName} liked your message`;
-      case "FOLLOW":
-        return `${user.displayName} followed you`;
-      case "NEW_MESSAGE":
-        return `${user.displayName} posted a new message`;
-      default:
-        return "";
-    }
-  };
 
   return (
     <Box>
@@ -51,7 +35,7 @@ const Notifications = () => {
             position="relative"
           >
             <Icon as={FiBell} />
-            {hasUnreadNotification && (
+            {hasUnreadNotifications && (
               <Box
                 position="absolute"
                 top={0}
@@ -69,22 +53,17 @@ const Notifications = () => {
           <PopoverCloseButton />
           <PopoverHeader>Notifications</PopoverHeader>
           <PopoverBody>
-            {notifications?.map((notification) => {
-              const message = getNotificationCopy(
-                notification.author,
-                notification.type
-              );
-              return (
-                <Box key={notification._id}>
-                  <Text>{message}</Text>
-                  <Button
-                    onClick={() => markNotificationRead(notification._id)}
-                  >
-                    Mark as Read
-                  </Button>
-                </Box>
-              );
-            })}
+            {notifications ? (
+              notifications?.map((notification) => (
+                <NotificationCard
+                  key={notification._id}
+                  notification={notification}
+                  markNotificationRead={markNotificationRead}
+                />
+              ))
+            ) : (
+              <Text>No notifications</Text>
+            )}
           </PopoverBody>
         </PopoverContent>
       </Popover>
