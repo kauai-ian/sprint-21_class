@@ -1,61 +1,234 @@
 const Message = require("../models/Message");
+const User = require("../models/User");
 
-exports.list = async (req, res) => {
-  try {
-    const messages = await Message.find()
-      .populate("author")
-      .populate("likes");
-    return res.json({ data: messages });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
+const response = require("../helpers/response");
 
-exports.get = async (req, res) => {
+exports.createMessage = async (req, res) => {
+  let statusCode = 200;
   try {
-    const message = await Message.findById(req.params.id)
-      .populate("author")
-      .populate("likes");
-    if (!message) {
-      return res.status(404).json({ error: "Message not found" });
+    if (!req?.body) {
+      statusCode = 400;
+      throw new Error("Request body is missing");
     }
-    return res.json({ data: message });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
 
-// TODO: validate the post body & escape the user input
-exports.create = async (req, res) => {
-  try {
-    const message = await Message.create(req.body);
-    return res.status(201).json({ data: message });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
+    const { body, _id } = req.body;
+    if (!body || !_id) {
+      statusCode = 400;
+      throw new Error("Missing required fields");
+    }
+    // Ensure the user exists
+    const user = await User.findById(_id);
+    if (!user) {
+      statusCode = 400;
+      throw new Error("User does not exist");
+    }
 
+    const newMessage = new Message({ body, author: _id });
+    await newMessage.save();
+    console.log(newMessage);
 
-// TODO: escape the user input
-exports.update = async (req, res) => {
-  try {
-    const message = await Message.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+    return response({
+      res,
+      status: 201,
+      message: "Message created",
+      data: {
+        ...newMessage.toObject(),
+        author: user,
+        likes: [],
+      },
     });
-    if (!message) {
-      return res.status(404).json({ error: "Message not found" });
-    }
-    return res.json({ data: message });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.error(error);
+    return response({
+      res,
+      status: statusCode,
+      message: error.message,
+    });
   }
 };
 
-exports.remove = async (req, res) => {
+exports.listMessages = async (req, res) => {
   try {
-    await Message.findByIdAndRemove(req.params.id);
-    return res.json({ data: message });
+    const messages = await Message.find().populate("author").populate("likes").sort({ createdDate: -1 });
+    return response({
+      res,
+      status: 200,
+      message: "Messages retrieved",
+      data: messages,
+    });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.error(error);
+    return response({
+      res,
+      status: 500,
+      message: "Server error",
+    });
+  }
+};
+
+exports.getMessage = async (req, res) => {
+  try {
+    const { _id } = req.params;
+    if (!_id) {
+      return response({
+        res,
+        status: 400,
+        message: "Missing required fields",
+      });
+    }
+
+    const message = await Message.findById(_id)
+      .populate("author")
+      .populate("likes");
+    return response({
+      res,
+      status: 200,
+      message: "Message retrieved",
+      data: message,
+    });
+  } catch (error) {
+    console.error(error);
+    return response({
+      res,
+      status: 500,
+      message: "Server error",
+    });
+  }
+};
+
+exports.deleteMessage = async (req, res) => {
+  try {
+    const { _id } = req.params;
+    if (!_id) {
+      return response({
+        res,
+        status: 400,
+        message: "Missing required fields",
+      });
+    }
+
+    const message = await Message.findByIdAndDelete(_id);
+    if (!message) {
+      return response({
+        res,
+        status: 404,
+        message: "Message not found",
+      });
+    }
+
+    return response({
+      res,
+      status: 200,
+      message: "Message deleted",
+    });
+  } catch (error) {
+    console.error(error);
+    return response({
+      res,
+      status: 500,
+      message: "Server error",
+    });
+  }
+};
+
+exports.likeMessage = async (req, res) => {
+  try {
+    const { _id } = req.params;
+    const { userId } = req.body;
+    console.log("LIKE MESSAGE", {
+      _id,
+      userId,
+    });
+    if (!_id || !userId) {
+      return response({
+        res,
+        status: 400,
+        message: "Missing required fields",
+      });
+    }
+
+    const message = await Message.findById(_id);
+    if (!message) {
+      return response({
+        res,
+        status: 404,
+        message: "Message not found",
+      });
+    }
+    let successMessage = "Message liked";
+    if (message.likes.includes(userId)) {
+      successMessage = "Message unliked";
+      message.likes.pull(userId);
+    } else {
+      message.likes.push(userId);
+    }
+
+    await message.save();
+
+    return response({
+      res,
+      status: 200,
+      message: successMessage,
+      data: message,
+    });
+  } catch (error) {
+    console.error(error);
+    return response({
+      res,
+      status: 500,
+      message: "Server error",
+    });
+  }
+};
+
+exports.updateMessage = async (req, res) => {
+  try {
+    const { _id } = req.params;
+    const { userId, body } = req.body;
+    if (!_id || !userId || !body) {
+      return response({
+        res,
+        status: 400,
+        message: "Missing required fields",
+      });
+    }
+
+    const message = await Message.findById(_id);
+    if (!message) {
+      return response({
+        res,
+        status: 404,
+        message: "Message not found",
+      });
+    }
+    console.log("message.author", message.author);
+    if (message.author.toString() !== userId) {
+      return response({
+        res,
+        status: 403,
+        message: "Unauthorized",
+      });
+    }
+
+    const newMessage = await Message.findByIdAndUpdate(
+      _id,
+      { body },
+      { new: true }
+    );
+    await newMessage.save();
+
+    return response({
+      res,
+      status: 200,
+      message: "Message updated",
+      data: newMessage,
+    });
+  } catch (error) {
+    console.error(error);
+    return response({
+      res,
+      status: 500,
+      message: "Server error",
+    });
   }
 };

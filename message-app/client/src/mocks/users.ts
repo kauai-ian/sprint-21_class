@@ -8,5 +8,7 @@ export const mockUser = {
   profileImage: "https://smartcdn.gprod.postmedia.digital/nationalpost/wp-content/uploads/2016/03/hoff.jpg",
   headerImage: "https://dustinstout.com/wp-content/uploads/2016/04/twitter-header-template.jpg",
   bio: "Hello, World!",
+  followers: [],
+  following: [],
   __v: 0,
 };

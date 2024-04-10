@@ -1,13 +1,14 @@
-import { Box, Flex, Button, Stack, useColorModeValue } from "@chakra-ui/react";
+import { Box, Flex, Button, Stack, useColorModeValue, useDisclosure } from "@chakra-ui/react";
 import { useAuth0 } from "@auth0/auth0-react";
+import NewMessageModal from "../NewMessageModal";
 
 export default function Navbar() {
+  const { isOpen, onClose, onOpen } = useDisclosure();
   const { isLoading, isAuthenticated, logout, loginWithRedirect } = useAuth0();
-  const linkColor = useColorModeValue("gray.600", "gray.200");
-  const linkColorHover = useColorModeValue("gray.800", "white");
 
   return (
     <Box>
+      <NewMessageModal isOpen={isOpen} onClose={onClose} />
       <Flex
         bg={useColorModeValue("white", "gray.800")}
         color={useColorModeValue("gray.600", "white")}
@@ -27,15 +28,20 @@ export default function Navbar() {
           spacing={6}
         >
           {isLoading ? null : isAuthenticated ? (
-            <Button
-              fontSize={"sm"}
-              fontWeight={400}
-              onClick={() =>
-                logout({ logoutParams: { returnTo: window.location.origin } })
-              }
-            >
-              Logout
-            </Button>
+            <>
+              <Button fontSize={"sm"} fontWeight={400} onClick={onOpen}>
+                New Message
+              </Button>
+              <Button
+                fontSize={"sm"}
+                fontWeight={400}
+                onClick={() =>
+                  logout({ logoutParams: { returnTo: window.location.origin } })
+                }
+              >
+                Logout
+              </Button>
+            </>
           ) : (
             <Button
               fontSize={"sm"}

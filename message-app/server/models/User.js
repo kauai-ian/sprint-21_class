@@ -1,7 +1,14 @@
-const mongoose = require("mongoose");
+// Create a mongoose schema for the user model
 
-const UserSchema = new mongoose.Schema({
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+
+const UserSchema = new Schema({
   username: {
+    type: String,
+    required: true
+  },
+  email: {
     type: String,
     required: true,
   },
@@ -9,31 +16,26 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  email: {
-    type: String,
-    required: true,
-  },
-  bio: {
-    type: String,
-  },
   displayName: {
     type: String,
-    default: function() {
-      return this.username;
-    },
   },
   joinedDate: {
     type: Date,
-    default: Date.now,
+    default: Date.now
   },
   profileImage: {
     type: String,
   },
-  // TODO
-  // status: {
-  //   type: String,
-  //   default: "active",
-  // }
+  followers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  }],
+  following: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  }],
+  bio: String,
+  headerImage: String,
 });
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = mongoose.model('User', UserSchema);

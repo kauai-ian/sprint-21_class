@@ -29,7 +29,7 @@ const generateLikes = (users) => {
 
   for (let i = 0; i < numLikes; i++) {
     const user = faker.helpers.arrayElement(users);
-    likes.push(user.sub);
+    likes.push(user._id);
   }
   return likes;
 };
@@ -43,10 +43,10 @@ const generateMessages = (users) => {
     const likes = generateLikes(users);
     console.log("LIKES", likes);
     const message = {
-      authorId: user.sub,
+      author: user._id,
       body: faker.lorem.sentence(),
       createdDate: faker.date.recent({ days: 365 }),
-      likeIds: likes,
+      likes,
     };
     messages.push(message);
   }

@@ -1,14 +1,5 @@
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
   FormControl,
-  FormLabel,
-  Input,
-  ModalFooter,
   Button,
   Textarea,
   Flex,
@@ -16,18 +7,23 @@ import {
   Image,
 } from "@chakra-ui/react";
 import { FC, useState } from "react";
+import useCurrentUser from "../../hooks/useCurrentUser";
 
 export type Props = {
+  isLoading: boolean;
   onSubmit: (body: string) => void;
-  profileImage: string;
 };
 
-const MessageForm: FC<Props> = ({ onSubmit, profileImage }) => {
+const MessageForm: FC<Props> = ({ isLoading, onSubmit }) => {
+  const { currentUser } = useCurrentUser();
   const [body, setBody] = useState("");
 
   const handleSubmit = async () => {
-    // TODO: Implement the submit logic
-    onSubmit(body);
+    if (!body || !currentUser) {
+      return;
+    }
+    await onSubmit(body);
+    setBody("");
   };
 
   return (
@@ -37,7 +33,10 @@ const MessageForm: FC<Props> = ({ onSubmit, profileImage }) => {
           borderRadius="50%"
           h="40px"
           w="full"
-          src={profileImage}
+          src={
+            currentUser?.profileImage ||
+            "https://avatars.githubusercontent.com/u/20189952"
+          }
           alt="Profile image"
         />
       </Box>
@@ -51,7 +50,7 @@ const MessageForm: FC<Props> = ({ onSubmit, profileImage }) => {
           />
         </FormControl>
         <Flex justify="flex-end">
-          <Button onClick={handleSubmit}>
+          <Button isLoading={isLoading} onClick={handleSubmit}>
             Post
           </Button>
         </Flex>
