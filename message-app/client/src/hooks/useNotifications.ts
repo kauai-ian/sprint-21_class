@@ -7,12 +7,14 @@ const useNotifications = () => {
     isLoading,
     markNotificationRead,
     hasUnreadNotifications,
+    addNotification,
   } = useContext(NotificationsContext);
 
   return {
     notifications,
     markNotificationRead,
     isLoading,
+    addNotification,
     hasUnreadNotifications,
   };
 };
