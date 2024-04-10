@@ -1,17 +1,7 @@
 const Message = require("../models/Message");
-const { broadcast } = require("../utils/socket");
+const User = require("../models/User");
 
-exports.list = async (req, res) => {
-  try {
-    const messages = await Message.find()
-      .populate("author")
-      .populate("likes")
-      .sort({ createdDate: -1 });
-    return res.json({ data: messages });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
+const response = require("../helpers/response");
 
 exports.createMessage = async (req, res) => {
   let statusCode = 200;
@@ -21,29 +11,36 @@ exports.createMessage = async (req, res) => {
       throw new Error("Request body is missing");
     }
 
-// TODO: validate the post body & escape the user input
-exports.create = async (req, res) => {
-  console.log(req.body);
-  try {
-    const newMessage = await Message.create(req.body);
+    const { body, _id } = req.body;
+    if (!body || !_id) {
+      statusCode = 400;
+      throw new Error("Missing required fields");
+    }
+    // Ensure the user exists
+    const user = await User.findById(_id);
+    if (!user) {
+      statusCode = 400;
+      throw new Error("User does not exist");
+    }
+
+    const newMessage = new Message({ body, author: _id });
     await newMessage.save();
     console.log(newMessage);
-    const message = await Message.findById(newMessage._id)
-      .populate("author")
-      .populate("likes");
 
-    broadcast(req.app.locals.clients, { data: message, type: "NEW_MESSAGE" });
-    return res.status(201).json({ data: message });
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
-};
+    broadcast(req.app.locals.clients, {
+      data: newMessage,
+      type: "NEW_MESSAGE",
+    });
 
-// TODO: escape the user input
-exports.update = async (req, res) => {
-  try {
-    const message = await Message.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
+    return response({
+      res,
+      status: 201,
+      message: "Message created",
+      data: {
+        ...newMessage.toObject(),
+        author: user,
+        likes: [],
+      },
     });
   } catch (error) {
     console.error(error);
@@ -57,7 +54,10 @@ exports.update = async (req, res) => {
 
 exports.listMessages = async (req, res) => {
   try {
-    const messages = await Message.find().populate("author").populate("likes").sort({ createdDate: -1 });
+    const messages = await Message.find()
+      .populate("author")
+      .populate("likes")
+      .sort({ createdDate: -1 });
     return response({
       res,
       status: 200,
