@@ -25,9 +25,9 @@ export const Feed: FC = () => {
                 body={message.body}
                 authorSub={message.author.sub}
                 createdDate={message.createdDate}
-                profileImage={message.author.profileImage}
-                displayName={message.author.displayName}
-                username={message.author.username}
+                profileImage={message.author?.profileImage}
+                displayName={message.author?.displayName}
+                username={message.author?.username}
                 likes={message.likes}
                 _id={message._id}
               />

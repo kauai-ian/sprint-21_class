@@ -1,10 +1,15 @@
 require("dotenv").config();
+const createError = require("http-errors");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const mongoose = require("mongoose");
+const http = require("http");
 const cors = require("cors");
-const { missingRouteHandler, errorHandler } = require("./middleware/errors");
+const messagesRouter = require("./routes/message.routes");
+const usersRouter = require("./routes/user.routes");
+const port = process.env.PORT || "3000";
+const WebSocket = require("ws");
 
 // Connect to db
 mongoose
@@ -24,17 +29,41 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(cors());
+app.set("port", port);
 
-// ROUTES
-const userRoutes = require("./routes/user.routes");
-const messageRoutes = require("./routes/message.routes");
+const server = http.createServer(app);
+const ws = new WebSocket.Server({ server });
 
-app.use("/users", userRoutes);
-app.use("/messages", messageRoutes);
+ws.on("connection", (webSocket) => {
+  console.info("Total connected clients:", ws.clients.size);
+  ws.clients.forEach((client) => console.log(client));
+  app.locals.clients = ws.clients;
+});
+
+// main user dashboard GET
+
+app.use("/messages", messagesRouter);
+app.use("/users", usersRouter);
 
 // catch 404 and forward to error handler
-app.use(missingRouteHandler);
+app.use(function (req, res, next) {
+  next(createError(404));
+});
+
 // error handler
-app.use(errorHandler);
+app.use(function (err, req, res, next) {
+  // set locals, only providing error in development
+  console.log(err);
+  res.locals.message = err.message;
+  res.locals.error = req.app.get("env") === "development" ? err : {};
+
+  // render the error page
+  res.status(err.status || 500);
+  res.render("error");
+});
+
+server.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 
 module.exports = app;

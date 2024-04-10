@@ -21,12 +21,19 @@ Implement notifications
 
 #### Objectives
 1. A user can see a list of notifications (Backend only)
+   1. Add an endpoint to get a list of notifications based on user._id
 2. A user gets notified if someone follows them
+   1. identify target user
+   2. Create a new notification in the DB
+   3. Broadcast an event to the connected client that matches the target user
+      1. Add logic to broadcast to determine if the client we want to send a message to is the target user
 3. A user is notified if someone "likes" their message
 4. BONUS: A user is notified when one of the people they are following posts a message
+5. BONUS: only authenticated users can see events emitted from the server
+6. BONUS: Fix dupe message when creating a new message (I.e. broadcast shouldn't go to user who created the new message)
 
 #### Instructions
-1. Pull the repo
+1. Clone the repo
 2. Change branches to ANDREW_notifications
 3. Create a new branch using the following example to name it:
    1. YOUR-NAME_notifications

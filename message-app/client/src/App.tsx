@@ -7,8 +7,10 @@ import Callback from "./pages/Callback";
 import AuthRoute from "./components/AuthRoute";
 import { useAuth0 } from "@auth0/auth0-react";
 import Loading from "./components/Loading";
+import useSocket from "./hooks/useSocket";
 
 function App() {
+  useSocket();
   const { isLoading } = useAuth0();
 
   return (

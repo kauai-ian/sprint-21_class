@@ -1,5 +1,6 @@
 const Message = require("../models/Message");
 const User = require("../models/User");
+const { broadcast } = require("../helpers/websockets");
 
 const response = require("../helpers/response");
 
@@ -27,6 +28,14 @@ exports.createMessage = async (req, res) => {
     await newMessage.save();
     console.log(newMessage);
 
+
+    const clients = req.app.locals.clients;
+    const message = {
+      data: newMessage,
+      type: "NEW_MESSAGE",
+    };
+    broadcast(clients, message);
+
     return response({
       res,
       status: 201,
@@ -49,7 +58,10 @@ exports.createMessage = async (req, res) => {
 
 exports.listMessages = async (req, res) => {
   try {
-    const messages = await Message.find().populate("author").populate("likes").sort({ createdDate: -1 });
+    const messages = await Message.find()
+      .populate("author")
+      .populate("likes")
+      .sort({ createdDate: -1 });
     return response({
       res,
       status: 200,
