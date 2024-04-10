@@ -81,7 +81,7 @@ const NotificationsProvider: FC<{ children: ReactNode }> = ({ children }) => {
       sub: currentUser.sub,
       token,
     });
-    setNotifications(data.notifications);
+    setNotifications(data);
     setIsLoading(false);
   };
 
