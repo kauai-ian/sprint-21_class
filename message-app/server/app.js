@@ -6,8 +6,8 @@ const logger = require("morgan");
 const mongoose = require("mongoose");
 const http = require("http");
 const cors = require("cors");
-const messagesRouter = require("./routes/messages");
-const usersRouter = require("./routes/users");
+const messagesRouter = require("./routes/message.routes");
+const usersRouter = require("./routes/user.routes");
 const port = process.env.PORT || "3000";
 const WebSocket = require("ws");
 
@@ -36,7 +36,7 @@ const ws = new WebSocket.Server({ server });
 
 ws.on("connection", (webSocket) => {
   console.info("Total connected clients:", ws.clients.size);
-
+  ws.clients.forEach((client) => console.log(client));
   app.locals.clients = ws.clients;
 });
 

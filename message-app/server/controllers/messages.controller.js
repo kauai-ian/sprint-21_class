@@ -1,5 +1,6 @@
 const Message = require("../models/Message");
 const User = require("../models/User");
+const { broadcast } = require("../helpers/websockets");
 
 const response = require("../helpers/response");
 
@@ -27,10 +28,13 @@ exports.createMessage = async (req, res) => {
     await newMessage.save();
     console.log(newMessage);
 
-    broadcast(req.app.locals.clients, {
+
+    const clients = req.app.locals.clients;
+    const message = {
       data: newMessage,
       type: "NEW_MESSAGE",
-    });
+    };
+    broadcast(clients, message);
 
     return response({
       res,

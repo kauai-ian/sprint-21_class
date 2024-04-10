@@ -5,7 +5,7 @@ const broadcast = (clients, message) => {
     return;
   }
   clients.forEach((client) => {
-    if (client?.readyState !== WebSocket.OPEN) {
+    if (client.readyState !== WebSocket.OPEN) {
       return;
     }
     client.send(JSON.stringify(message));
