@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import ProfileForm, { Props } from '.';
+import { mockUser } from '../../mocks/users';
 
 const meta: Meta<typeof ProfileForm> = {
   argTypes: {},
@@ -14,9 +15,11 @@ type Story = StoryObj<typeof ProfileForm>;
 const args: Props = {
   isOpen: true,
   onClose: () => {},
-  profileImage: "https://smartcdn.gprod.postmedia.digital/nationalpost/wp-content/uploads/2016/03/hoff.jpg",
-  displayName: "David Hasselhoff",
-  bio: "Hello, World!",
+  ...mockUser,
+  isLoading: false,
+  onSubmit: () => {},
+  followers: [],
+  following: [],
 };
 
 export const Primary: Story = {

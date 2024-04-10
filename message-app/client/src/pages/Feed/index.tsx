@@ -1,35 +1,35 @@
 import { FC } from "react";
-import { IMessage } from "../../types";
 import MessageCard from "../../components/MessageCard";
 import MessageForm from "../../components/MessageForm";
 import { Box, Flex } from "@chakra-ui/react";
-import { mockUser } from "../../mocks/users";
 import useMessages from "../../hooks/useMessages";
+import { useAuth0 } from "@auth0/auth0-react";
 
-export type Props = {
-  messages: IMessage[];
-  profileImage: string;
-  handleSubmit: (body: string) => void;
-};
+export const Feed: FC = () => {
+  const { isAuthenticated } = useAuth0();
+  const { messages, createMessage, isLoading } = useMessages();
 
-export const Feed: FC<Props> = ({ messages, profileImage, handleSubmit }) => {
   return (
     <Box>
-      <Box mb="16px">
-        <MessageForm profileImage={profileImage} onSubmit={handleSubmit} />
-      </Box>
+      {isAuthenticated && (
+        <Box mb="16px">
+          <MessageForm onSubmit={createMessage} isLoading={isLoading} />
+        </Box>
+      )}
       <Flex flexDirection="column" gap={2}>
-        {!messages.length
+        {!messages?.length
           ? null
           : messages.map((message) => (
               <MessageCard
-                key={message._id}
+                key={`${message._id}_${message.createdDate}`}
                 body={message.body}
+                authorSub={message.author.sub}
                 createdDate={message.createdDate}
                 profileImage={message.author?.profileImage}
                 displayName={message.author?.displayName}
                 username={message.author?.username}
                 likes={message.likes}
+                _id={message._id}
               />
             ))}
       </Flex>
@@ -37,38 +37,4 @@ export const Feed: FC<Props> = ({ messages, profileImage, handleSubmit }) => {
   );
 };
 
-const FeedPage = () => {
-  const { messages, addMessage } = useMessages();
-  const profileImage = mockUser.profileImage;
-  const handleSubmit = async (body: string) => {
-    try {
-      const response = await fetch("http://localhost:3000/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          body,
-          authorId: "174a2166-3d83-447a-af04-ec1dde093ed3",
-        }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to send message");
-      }
-      const { data } = await response.json();
-      console.log("Message sent successfully", data);
-      addMessage(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  return (
-    <Feed
-      messages={messages}
-      profileImage={profileImage}
-      handleSubmit={handleSubmit}
-    />
-  );
-};
-export default FeedPage;
+export default Feed;
