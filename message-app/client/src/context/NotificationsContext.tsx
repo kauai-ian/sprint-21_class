@@ -77,11 +77,11 @@ const NotificationsProvider: FC<{ children: ReactNode }> = ({ children }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const fetchNotifications = async () => {
     if (!currentUser?.sub || !token) return;
-    const res = await getUserNotifications({
+    const { data } = await getUserNotifications({
       sub: currentUser.sub,
       token,
     });
-    setNotifications(res.notifications);
+    setNotifications(data.notifications);
     setIsLoading(false);
   };
 
