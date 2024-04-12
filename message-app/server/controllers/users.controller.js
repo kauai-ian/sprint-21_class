@@ -150,7 +150,7 @@ exports.listUsers = async (req, res) => {
   }
 }
 
-exports.followUser = async (req, res) => {
+exports.followUser = async (req, res, message) => {
   try {
     const { sub } = req.params;
     if (!sub || !req.body) {
@@ -181,6 +181,7 @@ exports.followUser = async (req, res) => {
       });
     }
 
+    // check if user is already following each other
     if (currentUser.following.includes(targetUser._id) || targetUser.followers.includes(currentUserId)) {
       return response({
         res,
@@ -189,11 +190,38 @@ exports.followUser = async (req, res) => {
       });
     }
 
+    // add the current user to the followers list of the target user and vice versa
     targetUser.followers.push(currentUserId);
     currentUser.following.push(targetUser._id);
     await targetUser.save();
     await currentUser.save();
-    // TODO add notification
+    
+// like message
+    const authorId = message.author;
+    const author = await User.findById(authorId)
+    if(!author) {
+      return response({
+        res, status: 404, message: "Author not found"
+      })
+    }
+    if (successMessage === "Message liked") {
+      author.postsLiked.push(_id)
+    } else {
+      author.postsLiked.pull(_id)
+    } 
+    await author.save()
+
+// create a notification for the target user
+const notification = new Notification({
+  type: "FOLLOW",
+  user: targetUser.User._id,
+  author: currentUser._id,
+});
+await notification.save()
+// broadcast notification to the target user
+broadcast(targetUser._id, notification)
+
+
 
     return response({
       res,
